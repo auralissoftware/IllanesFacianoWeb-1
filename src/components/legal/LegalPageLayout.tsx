@@ -12,9 +12,9 @@ type LegalPageLayoutProps = {
 export function LegalPageLayout({ title, children }: LegalPageLayoutProps) {
   return (
     <>
-      <main className="min-h-screen bg-white">
+      <main className="safe-fab-padding min-h-screen bg-white">
         <div className="border-b border-slate-deep/5 bg-off-white/40">
-          <div className="mx-auto max-w-3xl px-6 py-5 lg:px-10">
+          <div className="mx-auto max-w-3xl px-4 py-4 sm:px-6 sm:py-5 lg:px-10">
             <Link
               to="/"
               className="inline-flex items-center gap-2 text-sm font-medium text-azul-francia transition hover:text-navy"
@@ -25,9 +25,9 @@ export function LegalPageLayout({ title, children }: LegalPageLayoutProps) {
           </div>
         </div>
 
-        <article className="mx-auto max-w-3xl px-6 py-10 lg:px-10 lg:py-14">
-          <header className="mb-10 border-b border-slate-deep/10 pb-8">
-            <h1 className="text-3xl font-semibold tracking-tight text-slate-deep sm:text-4xl">
+        <article className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10 lg:px-10 lg:py-14">
+          <header className="mb-8 border-b border-slate-deep/10 pb-6 sm:mb-10 sm:pb-8">
+            <h1 className="text-2xl font-semibold tracking-tight text-slate-deep sm:text-3xl md:text-4xl">
               {title}
             </h1>
             <p className="mt-3 text-sm text-muted">

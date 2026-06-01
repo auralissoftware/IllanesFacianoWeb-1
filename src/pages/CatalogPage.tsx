@@ -53,10 +53,10 @@ export function CatalogPage() {
 
       <section
         id="catalogo"
-        className="relative z-10 -mt-2 border-t border-slate-deep/5 bg-white pb-24 sm:pb-28"
+        className="relative z-10 -mt-2 border-t border-slate-deep/5 bg-white safe-fab-padding sm:pb-28"
         aria-label="Resultados del catálogo"
       >
-        <div className="mx-auto max-w-6xl px-6 pt-6 lg:px-10">
+        <div className="mx-auto max-w-6xl px-4 pt-5 sm:px-6 sm:pt-6 lg:px-10">
           <Link
             to="/"
             className="inline-flex items-center gap-2 text-sm font-medium text-azul-francia transition hover:text-navy"

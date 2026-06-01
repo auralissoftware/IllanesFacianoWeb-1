@@ -17,10 +17,13 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
+    scroll-padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
   }
 
   body {
     @apply bg-white font-sans text-slate-deep antialiased;
+    overflow-x: hidden;
   }
 
   ::selection {
@@ -54,7 +57,7 @@
   }
 
   .service-option {
-    @apply cursor-pointer rounded-xl border px-3 py-2.5 text-center transition-colors duration-200;
+    @apply min-h-11 cursor-pointer rounded-xl border px-3 py-3 text-center transition-colors duration-200;
   }
 
   .service-option-inactive {
@@ -78,8 +81,8 @@
   }
 
   .whatsapp-float {
-    @apply fixed right-5 z-40 inline-flex size-14 items-center justify-center gap-2 rounded-full bg-[#25D366] text-white shadow-[0_8px_28px_rgba(37,211,102,0.4)] transition duration-300 hover:bg-[#20bd5a] hover:shadow-[0_12px_36px_rgba(37,211,102,0.5)] active:scale-[0.96] sm:right-6 sm:h-auto sm:w-auto sm:px-5 sm:py-3.5 sm:text-sm sm:font-semibold;
-    bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
+    @apply fixed right-4 z-40 inline-flex size-12 items-center justify-center gap-2 rounded-full bg-[#25D366] text-white shadow-[0_8px_28px_rgba(37,211,102,0.4)] transition duration-300 hover:bg-[#20bd5a] hover:shadow-[0_12px_36px_rgba(37,211,102,0.5)] active:scale-[0.96] sm:right-6 sm:size-14 sm:h-auto sm:w-auto sm:px-5 sm:py-3.5 sm:text-sm sm:font-semibold;
+    bottom: max(1rem, env(safe-area-inset-bottom, 0px));
   }
 
   @media (min-width: 640px) {
@@ -171,7 +174,7 @@
   }
 
   .search-field {
-    @apply relative rounded-2xl border border-slate-200/80 bg-white px-3.5 py-3 shadow-[0_1px_2px_rgba(27,38,59,0.04)] transition-all duration-200 hover:border-slate-300/90;
+    @apply relative min-h-11 rounded-2xl border border-slate-200/80 bg-white px-3.5 py-3 shadow-[0_1px_2px_rgba(27,38,59,0.04)] transition-all duration-200 hover:border-slate-300/90;
   }
 
   .search-field-open {
@@ -183,7 +186,7 @@
   }
 
   .search-dropdown-option {
-    @apply w-full rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 transition-colors duration-150 hover:bg-off-white hover:text-slate-deep;
+    @apply min-h-11 w-full rounded-lg px-3 py-2.5 text-left text-sm text-slate-600 transition-colors duration-150 hover:bg-off-white hover:text-slate-deep;
   }
 
   .search-dropdown-option-active {
@@ -219,11 +222,11 @@
   }
 
   .search-tabs {
-    @apply mx-auto grid w-full max-w-2xl grid-cols-3 gap-0.5 rounded-full border border-white/25 bg-slate-deep/30 p-1 shadow-[0_4px_24px_rgba(27,38,59,0.12),inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-2xl sm:w-auto sm:max-w-none;
+    @apply mx-auto grid w-full max-w-2xl grid-cols-3 gap-1 rounded-full border border-white/25 bg-slate-deep/30 p-1 shadow-[0_4px_24px_rgba(27,38,59,0.12),inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-2xl sm:w-auto sm:max-w-none sm:gap-0.5;
   }
 
   .search-tab {
-    @apply relative rounded-full px-2.5 py-2.5 text-center text-[11px] leading-tight font-medium tracking-wide transition-all duration-300 ease-out sm:px-5 sm:py-2.5 sm:text-[13px] sm:whitespace-nowrap;
+    @apply relative flex min-h-11 items-center justify-center rounded-full px-1.5 py-2 text-center text-[10px] leading-tight font-medium tracking-wide transition-all duration-300 ease-out sm:min-h-0 sm:px-5 sm:py-2.5 sm:text-[13px] sm:whitespace-nowrap;
   }
 
   .search-tab-active {
@@ -235,7 +238,11 @@
   }
 
   .search-explore-btn {
-    @apply flex items-center justify-center gap-2 rounded-2xl border border-slate-200/90 bg-white/95 px-5 py-3 text-sm font-medium text-slate-deep shadow-[0_4px_20px_rgba(27,38,59,0.12),0_8px_32px_rgba(0,119,182,0.1)] backdrop-blur-md transition duration-300 hover:border-azul-francia/35 hover:text-azul-francia;
+    @apply flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-slate-200/90 bg-white/95 px-4 py-3 text-center text-sm font-medium text-slate-deep shadow-[0_4px_20px_rgba(27,38,59,0.12),0_8px_32px_rgba(0,119,182,0.1)] backdrop-blur-md transition duration-300 hover:border-azul-francia/35 hover:text-azul-francia sm:w-auto sm:px-5;
+  }
+
+  .safe-fab-padding {
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
   }
 
   .hero-overlay-top {

@@ -12,9 +12,9 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-white/5 bg-navy px-6 pt-8 pb-8 text-white sm:pb-10 lg:px-10 lg:pt-10">
+    <footer className="safe-fab-padding border-t border-white/5 bg-navy px-4 pt-8 text-white sm:px-6 sm:pb-10 lg:px-10 lg:pt-10">
       <div className="mx-auto max-w-6xl">
-        <div className="flex flex-col items-center gap-10 text-center lg:flex-row lg:items-start lg:justify-between lg:gap-10 lg:text-left">
+        <div className="flex flex-col items-center gap-8 text-center sm:gap-10 lg:flex-row lg:items-start lg:justify-between lg:gap-10 lg:text-left">
           <div className="max-w-lg">
             <p className="text-base font-semibold tracking-tight sm:text-lg">
               ILLANES FACIANO
@@ -31,7 +31,7 @@ export function Footer() {
             <img
               src="/images/logo-light.png"
               alt="Illanes Faciano"
-              className="h-20 w-auto object-contain sm:h-24 lg:h-28"
+              className="h-16 w-auto object-contain sm:h-20 lg:h-28"
             />
           </div>
         </div>

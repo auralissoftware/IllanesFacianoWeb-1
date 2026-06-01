@@ -118,14 +118,14 @@ export function ContactSection() {
   }
 
   return (
-    <section id="contacto" className="bg-white px-6 pb-20 lg:px-10 lg:pb-24">
+    <section id="contacto" className="bg-white px-4 pb-16 sm:px-6 sm:pb-20 lg:px-10 lg:pb-24">
       <div className="relative mx-auto max-w-3xl">
         <div
           className="absolute -inset-1 rounded-[1.75rem] bg-gradient-to-br from-celeste/30 via-transparent to-azul-francia/20 opacity-70 blur-sm"
           aria-hidden
         />
 
-        <div className="surface-card relative px-6 py-12 sm:px-10 sm:py-14">
+        <div className="surface-card relative px-5 py-10 sm:px-10 sm:py-14">
           <div className="text-center">
             <span className="section-badge">Contacto</span>
             <p className="mt-5 text-lg font-semibold tracking-tight text-navy sm:text-xl">

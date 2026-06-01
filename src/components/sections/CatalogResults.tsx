@@ -73,7 +73,7 @@ export function CatalogResults({ action }: CatalogResultsProps) {
   }
 
   return (
-    <div className="mx-auto grid max-w-6xl gap-6 px-6 py-12 sm:grid-cols-2 lg:grid-cols-3 lg:px-10">
+    <div className="mx-auto grid max-w-6xl gap-5 px-4 py-10 sm:grid-cols-2 sm:gap-6 sm:px-6 sm:py-12 lg:grid-cols-3 lg:px-10">
       {items.map((item) => {
         const cover = item.media[0];
 
@@ -107,8 +107,8 @@ export function CatalogResults({ action }: CatalogResultsProps) {
               )}
             </div>
 
-            <div className="space-y-2 p-5">
-              <h3 className="text-lg font-semibold text-navy transition group-hover:text-azul-francia">
+            <div className="space-y-2 p-4 sm:p-5">
+              <h3 className="line-clamp-2 text-base font-semibold text-navy transition group-hover:text-azul-francia sm:text-lg">
                 {item.title}
               </h3>
               <p className="text-sm font-medium text-azul-francia">{item.precio}</p>

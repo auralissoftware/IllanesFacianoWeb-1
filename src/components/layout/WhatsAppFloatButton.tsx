@@ -10,7 +10,7 @@ export function WhatsAppFloatButton() {
       className="whatsapp-float"
       aria-label="Contactar por WhatsApp"
     >
-      <WhatsAppIcon className="size-6 shrink-0" />
+      <WhatsAppIcon className="size-5 shrink-0 sm:size-6" />
       <span className="hidden sm:inline">WhatsApp</span>
     </a>
   );

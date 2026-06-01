@@ -27,7 +27,7 @@ export function CatalogItemDetail({ item }: CatalogItemDetailProps) {
   }
 
   return (
-    <main className="min-h-screen bg-white pb-28">
+    <main className="safe-fab-padding min-h-screen bg-white">
       <CatalogMediaLightbox
         media={item.media}
         activeIndex={activeMediaIndex}
@@ -38,7 +38,7 @@ export function CatalogItemDetail({ item }: CatalogItemDetailProps) {
       />
 
       <div className="border-b border-slate-deep/5 bg-off-white/40">
-        <div className="mx-auto max-w-6xl px-6 py-5 lg:px-10">
+        <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6 sm:py-5 lg:px-10">
           <Link
             to="/catalogo"
             className="inline-flex items-center gap-2 text-sm font-medium text-azul-francia transition hover:text-navy"
@@ -49,8 +49,8 @@ export function CatalogItemDetail({ item }: CatalogItemDetailProps) {
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl px-6 py-8 lg:px-10 lg:py-10">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:gap-10">
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+        <div className="grid gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:gap-10">
           <section aria-label="Galería de fotos y videos">
             <div className="overflow-hidden rounded-[1.5rem] border border-slate-deep/10 bg-off-white/60">
               {activeMedia ? (
@@ -116,7 +116,7 @@ export function CatalogItemDetail({ item }: CatalogItemDetailProps) {
             )}
 
             {item.media.length > 1 && (
-              <div className="mt-4 grid grid-cols-4 gap-3 sm:grid-cols-5">
+              <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 md:grid-cols-5">
                 {item.media.map((media, index) => (
                   <div key={`${media.url}-${index}`} className="relative">
                     <button
@@ -169,16 +169,16 @@ export function CatalogItemDetail({ item }: CatalogItemDetailProps) {
                 {getSectionLabel(item.section)}
               </span>
 
-              <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-deep sm:text-4xl">
+              <h1 className="mt-4 break-words text-2xl font-semibold tracking-tight text-slate-deep sm:text-3xl md:text-4xl">
                 {item.title}
               </h1>
 
-              <p className="mt-3 text-2xl font-semibold text-azul-francia">
+              <p className="mt-3 text-xl font-semibold text-azul-francia sm:text-2xl">
                 {item.precio}
               </p>
 
-              <p className="mt-3 inline-flex items-center gap-2 text-sm text-muted">
-                <MapPin className="size-4 shrink-0 text-azul-francia" strokeWidth={2} />
+              <p className="mt-3 inline-flex items-start gap-2 text-sm break-words text-muted">
+                <MapPin className="mt-0.5 size-4 shrink-0 text-azul-francia" strokeWidth={2} />
                 {item.ubicacion}
               </p>
             </div>
@@ -192,10 +192,10 @@ export function CatalogItemDetail({ item }: CatalogItemDetailProps) {
                   {detailRows.map((row) => (
                     <div
                       key={row.label}
-                      className="flex items-start justify-between gap-4 border-b border-slate-deep/5 pb-3 last:border-b-0 last:pb-0"
+                      className="flex flex-col gap-1 border-b border-slate-deep/5 pb-3 last:border-b-0 last:pb-0 sm:flex-row sm:items-start sm:justify-between sm:gap-4"
                     >
                       <dt className="text-sm text-muted">{row.label}</dt>
-                      <dd className="text-right text-sm font-medium text-slate-deep">
+                      <dd className="text-sm font-medium break-words text-slate-deep sm:text-right">
                         {row.value}
                       </dd>
                     </div>
@@ -208,7 +208,7 @@ export function CatalogItemDetail({ item }: CatalogItemDetailProps) {
               href={getWhatsAppUrl(whatsappMessage)}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#25D366] px-6 py-3.5 text-sm font-semibold text-white transition hover:brightness-95"
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-[#25D366] px-6 py-3.5 text-sm font-semibold text-white transition hover:brightness-95"
             >
               <MessageCircle className="size-4" strokeWidth={2} />
               Consultar por WhatsApp
@@ -216,7 +216,7 @@ export function CatalogItemDetail({ item }: CatalogItemDetailProps) {
           </aside>
         </div>
 
-        <section className="mt-10 rounded-[1.5rem] border border-slate-deep/10 bg-white p-6 sm:p-8">
+        <section className="mt-8 rounded-[1.25rem] border border-slate-deep/10 bg-white p-5 sm:mt-10 sm:rounded-[1.5rem] sm:p-8">
           <h2 className="text-lg font-semibold text-slate-deep">Descripción</h2>
           <p className="mt-4 whitespace-pre-line text-sm leading-7 text-slate-deep/85 sm:text-base">
             {item.description}

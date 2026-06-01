@@ -25,10 +25,10 @@ import type {
 } from "../../lib/searchTypes";
 import { adminTiposPropiedad } from "../../types/adminCatalog";
 
-const tabs: { id: SearchTab; label: string }[] = [
-  { id: "propiedades", label: "Propiedades" },
-  { id: "bienes_muebles", label: "Vehículos y Activos" },
-  { id: "remates", label: "Próximos Remates" },
+const tabs: { id: SearchTab; label: string; shortLabel: string }[] = [
+  { id: "propiedades", label: "Propiedades", shortLabel: "Propiedades" },
+  { id: "bienes_muebles", label: "Vehículos y Activos", shortLabel: "Vehículos" },
+  { id: "remates", label: "Próximos Remates", shortLabel: "Remates" },
 ];
 
 const propertyTypes = [
@@ -115,6 +115,31 @@ const emptyBienesMuebles: BienesMueblesFilters = {
   condition: "",
 };
 
+function clampMenuRect(
+  triggerRect: DOMRect,
+  options: { minWidth?: number; maxWidth?: number } = {},
+) {
+  const viewportPadding = 12;
+  const viewportWidth = window.innerWidth;
+  const maxWidth =
+    options.maxWidth ?? Math.min(360, viewportWidth - viewportPadding * 2);
+  const minWidth = Math.min(
+    options.minWidth ?? triggerRect.width,
+    maxWidth,
+  );
+  const width = Math.min(Math.max(triggerRect.width, minWidth), maxWidth);
+  const left = Math.max(
+    viewportPadding,
+    Math.min(triggerRect.left, viewportWidth - width - viewportPadding),
+  );
+
+  return {
+    top: triggerRect.bottom + 6,
+    left,
+    width,
+  };
+}
+
 type SearchDropdownProps = {
   id: string;
   label: string;
@@ -153,11 +178,12 @@ function SearchDateRange({
     if (!triggerRef.current) return;
 
     const rect = triggerRef.current.getBoundingClientRect();
-    setMenuRect({
-      top: rect.bottom + 6,
-      left: rect.left,
-      width: Math.max(rect.width, 300),
-    });
+    const viewportPadding = 24;
+    setMenuRect(
+      clampMenuRect(rect, {
+        minWidth: Math.min(300, window.innerWidth - viewportPadding),
+      }),
+    );
   }
 
   function applyPreset(preset: "este-mes" | "proximas-semanas") {
@@ -368,12 +394,7 @@ function SearchDropdown({
   function updateMenuRect() {
     if (!triggerRef.current) return;
 
-    const rect = triggerRef.current.getBoundingClientRect();
-    setMenuRect({
-      top: rect.bottom + 6,
-      left: rect.left,
-      width: rect.width,
-    });
+    setMenuRect(clampMenuRect(triggerRef.current.getBoundingClientRect()));
   }
 
   useEffect(() => {
@@ -619,13 +640,13 @@ export function HeroSearch({
   };
 
   return (
-    <div className="mx-auto mt-8 w-full max-w-4xl">
+    <div className="mx-auto mt-6 w-full max-w-4xl sm:mt-8">
       <div
-        className="search-tabs mb-5"
+        className="search-tabs mb-4 sm:mb-5"
         role="tablist"
         aria-label="Tipo de búsqueda"
       >
-        {tabs.map(({ id, label }) => {
+        {tabs.map(({ id, label, shortLabel }) => {
           const isActive = activeTab === id;
 
           return (
@@ -637,7 +658,8 @@ export function HeroSearch({
               onClick={() => switchTab(id)}
               className={`search-tab ${isActive ? "search-tab-active" : "search-tab-inactive"}`}
             >
-              {label}
+              <span className="sm:hidden">{shortLabel}</span>
+              <span className="hidden sm:inline">{label}</span>
             </button>
           );
         })}
