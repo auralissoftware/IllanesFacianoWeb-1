@@ -5,6 +5,8 @@ import { AdminLoginPage } from "./pages/AdminLoginPage";
 import { CatalogDetailPage } from "./pages/CatalogDetailPage";
 import { CatalogPage } from "./pages/CatalogPage";
 import { HomePage } from "./pages/HomePage";
+import { PrivacyPage } from "./pages/PrivacyPage";
+import { TermsPage } from "./pages/TermsPage";
 
 function AppRoutes() {
   const location = useLocation();
@@ -16,6 +18,8 @@ function AppRoutes() {
         <Route path="/" element={<HomePage />} />
         <Route path="/catalogo" element={<CatalogPage />} />
         <Route path="/catalogo/:id" element={<CatalogDetailPage />} />
+        <Route path="/terminos" element={<TermsPage />} />
+        <Route path="/privacidad" element={<PrivacyPage />} />
         <Route path="/admin/login" element={<AdminLoginPage />} />
         <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
       </Routes>
