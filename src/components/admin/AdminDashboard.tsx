@@ -12,11 +12,9 @@ import {
   adminTiposBienMueble,
   adminTiposPropiedad,
   adminTiposSubasta,
-  getBienMuebleDescription,
   getBienMuebleFieldLabel,
   getBienMuebleFields,
   getPrecioLabel,
-  getPrecioPlaceholder,
   initialCommonFields,
   initialPropiedadFields,
   initialRemateFields,
@@ -253,12 +251,6 @@ export function AdminDashboard() {
             })}
           </div>
 
-          <p className="mt-4 rounded-2xl border border-slate-200/80 bg-off-white/70 px-4 py-3 text-sm text-muted">
-            {categoria === "bienes_muebles"
-              ? getBienMuebleDescription(vehiculo.tipoBien)
-              : adminCategorias.find((item) => item.id === categoria)?.description}
-          </p>
-
           <form className="mt-8 space-y-8" onSubmit={handleSubmit} noValidate>
             <section className="space-y-5">
               <h3 className="admin-section-title">Información general</h3>
@@ -269,7 +261,6 @@ export function AdminDashboard() {
                   type="text"
                   value={common.titulo}
                   onChange={(e) => updateCommon("titulo", e.target.value)}
-                  placeholder="Ej: Casa en Yerba Buena · 3 dormitorios"
                   className={inputClass("titulo")}
                   disabled={isPublishing}
                 />
@@ -285,7 +276,6 @@ export function AdminDashboard() {
                   rows={5}
                   value={common.descripcion}
                   onChange={(e) => updateCommon("descripcion", e.target.value)}
-                  placeholder="Describí las características principales del activo..."
                   className={`${inputClass("descripcion")} resize-none`}
                   disabled={isPublishing}
                 />
@@ -302,7 +292,6 @@ export function AdminDashboard() {
                     type="text"
                     value={common.ubicacion}
                     onChange={(e) => updateCommon("ubicacion", e.target.value)}
-                    placeholder="Ej: Yerba Buena, Tucumán"
                     className={inputClass("ubicacion")}
                     disabled={isPublishing}
                   />
@@ -341,7 +330,6 @@ export function AdminDashboard() {
                       type="text"
                       value={common.precio}
                       onChange={(e) => updateCommon("precio", e.target.value)}
-                      placeholder={getPrecioPlaceholder(categoria, common.moneda)}
                       className={inputClass("precio")}
                       disabled={isPublishing}
                     />
@@ -423,7 +411,6 @@ export function AdminDashboard() {
                           superficie: e.target.value,
                         }))
                       }
-                      placeholder="Ej: 180"
                       className={inputClass("superficie")}
                       disabled={isPublishing}
                     />
@@ -445,7 +432,6 @@ export function AdminDashboard() {
                           ambientes: e.target.value,
                         }))
                       }
-                      placeholder="Ej: 5"
                       className={inputClass("ambientes")}
                       disabled={isPublishing}
                     />
@@ -467,7 +453,6 @@ export function AdminDashboard() {
                           dormitorios: e.target.value,
                         }))
                       }
-                      placeholder="Ej: 3"
                       className={inputClass("dormitorios")}
                       disabled={isPublishing}
                     />
@@ -485,7 +470,6 @@ export function AdminDashboard() {
                           banos: e.target.value,
                         }))
                       }
-                      placeholder="Ej: 2"
                       className={inputClass("banos")}
                       disabled={isPublishing}
                     />
@@ -567,7 +551,6 @@ export function AdminDashboard() {
                             marcaModelo: e.target.value,
                           }))
                         }
-                        placeholder={marcaField.placeholder}
                         className={inputClass("marcaModelo")}
                         disabled={isPublishing}
                       />
@@ -598,7 +581,6 @@ export function AdminDashboard() {
                                 anio: e.target.value,
                               }))
                             }
-                            placeholder={anioField.placeholder}
                             className={inputClass("anio")}
                             disabled={isPublishing}
                           />
@@ -621,7 +603,6 @@ export function AdminDashboard() {
                                 kilometraje: e.target.value,
                               }))
                             }
-                            placeholder={kmField.placeholder}
                             className={inputClass("kilometraje")}
                             disabled={isPublishing}
                           />
@@ -729,7 +710,6 @@ export function AdminDashboard() {
                     onChange={(e) =>
                       setRemate((current) => ({ ...current, martillero: e.target.value }))
                     }
-                    placeholder="Nombre del martillero"
                     className={inputClass("martillero")}
                     disabled={isPublishing}
                   />
