@@ -419,4 +419,132 @@
   .admin-thumbnail:focus-within .admin-thumbnail-remove {
     @apply opacity-100;
   }
+
+  .admin-preview-tabs {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .admin-preview-tab {
+    @apply rounded-full border px-4 py-2 text-sm font-medium transition duration-200;
+  }
+
+  .admin-preview-tab-active {
+    @apply border-azul-francia/30 bg-azul-francia text-white shadow-[0_4px_16px_rgba(0,119,182,0.2)];
+  }
+
+  .admin-preview-tab-inactive {
+    @apply border-slate-200/90 bg-off-white/70 text-slate-deep hover:border-celeste/50 hover:bg-celeste/10 hover:text-azul-francia;
+  }
+
+  .admin-preview-grid {
+    @apply grid gap-5 sm:grid-cols-2 xl:grid-cols-3;
+  }
+
+  .admin-preview-card {
+    @apply overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-[0_8px_30px_rgba(27,38,59,0.06)] transition duration-200 hover:-translate-y-0.5 hover:border-azul-francia/20 hover:shadow-md;
+  }
+
+  .admin-preview-card-media {
+    @apply relative aspect-[4/3] bg-off-white/70;
+  }
+
+  .admin-preview-card-badge {
+    @apply absolute top-3 left-3 rounded-full bg-white/95 px-3 py-1 text-[11px] font-semibold tracking-wide text-navy uppercase shadow-sm;
+  }
+
+  .admin-preview-card-body {
+    @apply space-y-1 p-5;
+  }
+
+  .admin-preview-card-actions {
+    @apply grid gap-2 border-t border-slate-100 p-4 sm:grid-cols-3;
+  }
+
+  .admin-preview-action {
+    @apply inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition duration-200;
+  }
+
+  .admin-preview-action-view {
+    @apply border-slate-200/90 bg-off-white/70 text-slate-deep hover:border-azul-francia/30 hover:text-azul-francia;
+  }
+
+  .admin-preview-action-edit {
+    @apply border-celeste/40 bg-celeste/10 text-azul-francia hover:border-azul-francia/30 hover:bg-celeste/20;
+  }
+
+  .admin-preview-action-delete {
+    @apply border-red-200 bg-red-50 text-red-700 hover:border-red-300 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .admin-preview-empty {
+    @apply rounded-2xl border border-dashed border-slate-200/90 bg-off-white/50 px-6 py-14 text-center;
+  }
+
+  .footer-shell {
+    padding-bottom: max(1rem, calc(4.25rem + env(safe-area-inset-bottom, 0px)));
+  }
+
+  .footer-brand-name {
+    @apply text-base font-semibold tracking-tight text-white sm:text-lg;
+  }
+
+  .footer-profession {
+    @apply mt-1.5 max-w-md text-sm leading-snug text-white/70;
+  }
+
+  .footer-badges {
+    @apply mt-2.5 flex flex-wrap items-center justify-center gap-2;
+  }
+
+  .footer-logo-row {
+    @apply mt-7 flex w-full min-w-0 items-center justify-between sm:mt-8;
+  }
+
+  .footer-logo-side {
+    @apply flex min-w-0 flex-1 items-center;
+  }
+
+  .footer-logo-side-left {
+    @apply justify-end pr-2 sm:pr-6 lg:pr-16 xl:pr-24;
+  }
+
+  .footer-logo-side-right {
+    @apply justify-start pl-2 sm:pl-6 lg:pl-16 xl:pl-24;
+  }
+
+  .footer-logo-main {
+    @apply mx-4 h-24 w-auto shrink-0 object-contain sm:mx-8 sm:h-28 lg:mx-12 lg:h-[7.75rem] xl:mx-16;
+  }
+
+  .footer-logo-institutional {
+    @apply h-11 w-auto max-w-[92px] object-contain opacity-95 sm:h-12 sm:max-w-[108px] lg:h-14 lg:max-w-[124px];
+  }
+
+  .footer-badge {
+    @apply inline-flex rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] text-celeste sm:text-xs;
+  }
+
+  .footer-contact-row {
+    @apply mt-7 flex flex-col items-center justify-center gap-3 border-t border-white/[0.08] pt-7 sm:mt-8 sm:flex-row sm:gap-10 sm:pt-8;
+  }
+
+  .footer-contact-link {
+    @apply inline-flex items-center gap-2 text-sm text-white/75 transition hover:text-celeste;
+  }
+
+  .footer-legal {
+    @apply mt-8 space-y-2.5 border-t border-white/[0.08] pt-6 text-center sm:mt-9 sm:pt-7;
+  }
+
+  .footer-legal-links {
+    @apply flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-white/40;
+  }
+
+  .footer-legal-links a {
+    @apply transition hover:text-celeste;
+  }
+
+  .footer-copyright {
+    @apply text-[11px] leading-relaxed text-white/35 sm:text-xs;
+  }
 }

@@ -1,5 +1,21 @@
-import type { AdminMoneda, PublishCatalogPayload } from "../types/adminCatalog";
-import { formatPrecioForDisplay } from "../types/adminCatalog";
+import type {
+  AdminCategoria,
+  AdminCommonFields,
+  AdminEditCatalogItem,
+  AdminMediaFile,
+  AdminMoneda,
+  AdminPropiedadFields,
+  AdminRemateFields,
+  AdminVehiculoFields,
+  PublishCatalogPayload,
+  UpdateCatalogPayload,
+} from "../types/adminCatalog";
+import {
+  formatPrecioForDisplay,
+  initialPropiedadFields,
+  initialRemateFields,
+  initialVehiculoFields,
+} from "../types/adminCatalog";
 import { filterBienesMuebles } from "./searchFilters";
 import { requireSupabase, supabase } from "./supabase";
 import type {
@@ -44,6 +60,8 @@ type DbCatalogRow = {
   estado: string | null;
   details: Record<string, string> | null;
   catalog_media: {
+    id: string;
+    storage_path: string;
     public_url: string;
     kind: "image" | "video";
     sort_order: number;
@@ -185,11 +203,137 @@ const catalogItemSelect = `
   estado,
   details,
   catalog_media (
+    id,
+    storage_path,
     public_url,
     kind,
     sort_order
   )
 `;
+
+function mapRowToAdminEditItem(row: DbCatalogRow): AdminEditCatalogItem {
+  const details = row.details ?? {};
+  const moneda = (details.moneda as AdminMoneda | undefined) ?? "ars";
+
+  const common: AdminCommonFields = {
+    titulo: row.titulo,
+    descripcion: row.descripcion,
+    ubicacion: row.ubicacion,
+    precio: row.precio,
+    moneda,
+  };
+
+  const propiedad: AdminPropiedadFields = {
+    tipoPropiedad: details.tipoPropiedad ?? initialPropiedadFields.tipoPropiedad,
+    operacion: details.operacion ?? initialPropiedadFields.operacion,
+    superficie: details.superficie ?? "",
+    ambientes: details.ambientes ?? "",
+    dormitorios: details.dormitorios ?? "",
+    banos: details.banos ?? "",
+  };
+
+  const vehiculo: AdminVehiculoFields = {
+    tipoBien: details.tipoBien ?? initialVehiculoFields.tipoBien,
+    marcaModelo: details.marcaModelo ?? "",
+    anio: details.anio ?? "",
+    kilometraje: details.kilometraje ?? "",
+    estado:
+      (row.estado as AdminVehiculoFields["estado"] | null) ??
+      initialVehiculoFields.estado,
+  };
+
+  const remate: AdminRemateFields = {
+    tipoSubasta: details.tipoSubasta ?? initialRemateFields.tipoSubasta,
+    fecha: details.fecha ?? "",
+    hora: details.hora ?? "",
+    martillero: details.martillero ?? initialRemateFields.martillero,
+  };
+
+  const media: AdminMediaFile[] = (row.catalog_media ?? [])
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .map((item) => ({
+      id: item.id,
+      previewUrl: item.public_url,
+      kind: item.kind,
+      storagePath: item.storage_path,
+    }));
+
+  return {
+    id: row.id,
+    categoria: row.categoria as AdminCategoria,
+    common,
+    propiedad,
+    vehiculo,
+    remate,
+    media,
+  };
+}
+
+async function requireAdminSession() {
+  const client = requireSupabase();
+
+  const {
+    data: { session },
+  } = await client.auth.getSession();
+
+  if (!session) {
+    throw new Error("Tenés que iniciar sesión en el panel admin.");
+  }
+
+  return client;
+}
+
+async function uploadMediaFiles(
+  client: ReturnType<typeof requireSupabase>,
+  itemId: string,
+  files: File[],
+  startOrder: number,
+) {
+  for (const [index, file] of files.entries()) {
+    const extension = file.name.includes(".")
+      ? file.name.slice(file.name.lastIndexOf("."))
+      : "";
+    const storagePath = `${itemId}/${crypto.randomUUID()}${extension}`;
+
+    const { error: uploadError } = await client.storage
+      .from("catalog-media")
+      .upload(storagePath, file, {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: file.type || undefined,
+      });
+
+    if (uploadError) {
+      throw new Error(`Error al subir ${file.name}: ${uploadError.message}`);
+    }
+
+    const { data: publicUrlData } = client.storage
+      .from("catalog-media")
+      .getPublicUrl(storagePath);
+
+    const { error: mediaError } = await client.from("catalog_media").insert({
+      catalog_item_id: itemId,
+      storage_path: storagePath,
+      public_url: publicUrlData.publicUrl,
+      kind: isVideoFile(file) ? "video" : "image",
+      sort_order: startOrder + index,
+    });
+
+    if (mediaError) {
+      throw new Error(mediaError.message);
+    }
+  }
+}
+
+async function deleteMediaRecords(
+  client: ReturnType<typeof requireSupabase>,
+  mediaRows: { id: string; storage_path: string }[],
+) {
+  for (const media of mediaRows) {
+    await client.storage.from("catalog-media").remove([media.storage_path]);
+    await client.from("catalog_media").delete().eq("id", media.id);
+  }
+}
 
 export async function fetchCatalogListings(
   action: SearchAction,
@@ -278,18 +422,49 @@ function buildDetails(payload: PublishCatalogPayload): Record<string, string> {
   return moneda;
 }
 
+export async function fetchAdminCatalogItems(): Promise<CatalogListing[]> {
+  if (!supabase) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("catalog_items")
+    .select(catalogItemSelect)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data as DbCatalogRow[]).map(mapRowToListing);
+}
+
+export async function fetchAdminCatalogItemForEdit(
+  id: string,
+): Promise<AdminEditCatalogItem | null> {
+  const client = await requireAdminSession();
+
+  const { data, error } = await client
+    .from("catalog_items")
+    .select(catalogItemSelect)
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  return mapRowToAdminEditItem(data as DbCatalogRow);
+}
+
 export async function publishCatalogItemToSupabase(
   payload: PublishCatalogPayload,
-): Promise<void> {
-  const client = requireSupabase();
-
-  const {
-    data: { session },
-  } = await client.auth.getSession();
-
-  if (!session) {
-    throw new Error("Tenés que iniciar sesión en el panel admin para publicar.");
-  }
+): Promise<string> {
+  const client = await requireAdminSession();
 
   const details = buildDetails(payload);
   const estado =
@@ -316,38 +491,78 @@ export async function publishCatalogItemToSupabase(
     throw new Error(insertError?.message ?? "No se pudo crear la publicación.");
   }
 
-  for (const [index, file] of payload.images.entries()) {
-    const extension = file.name.includes(".")
-      ? file.name.slice(file.name.lastIndexOf("."))
-      : "";
-    const storagePath = `${createdItem.id}/${crypto.randomUUID()}${extension}`;
+  await uploadMediaFiles(client, createdItem.id, payload.images, 0);
 
-    const { error: uploadError } = await client.storage
+  return createdItem.id;
+}
+
+export async function updateCatalogItemToSupabase(
+  payload: UpdateCatalogPayload,
+): Promise<void> {
+  const client = await requireAdminSession();
+  const details = buildDetails(payload);
+  const estado =
+    payload.categoria === "bienes_muebles"
+      ? payload.vehiculo?.estado ?? null
+      : null;
+
+  const { error: updateError } = await client
+    .from("catalog_items")
+    .update({
+      categoria: payload.categoria,
+      titulo: payload.common.titulo.trim(),
+      descripcion: payload.common.descripcion.trim(),
+      ubicacion: payload.common.ubicacion.trim(),
+      precio: payload.common.precio.trim(),
+      estado,
+      details,
+    })
+    .eq("id", payload.itemId);
+
+  if (updateError) {
+    throw new Error(updateError.message);
+  }
+
+  const { data: currentMedia, error: mediaError } = await client
+    .from("catalog_media")
+    .select("id, storage_path")
+    .eq("catalog_item_id", payload.itemId);
+
+  if (mediaError) {
+    throw new Error(mediaError.message);
+  }
+
+  const keptIds = new Set(payload.keptMediaIds);
+  const mediaToDelete = (currentMedia ?? []).filter((media) => !keptIds.has(media.id));
+
+  await deleteMediaRecords(client, mediaToDelete);
+  await uploadMediaFiles(client, payload.itemId, payload.images, payload.keptMediaIds.length);
+}
+
+export async function deleteCatalogItemToSupabase(id: string): Promise<void> {
+  const client = await requireAdminSession();
+
+  const { data: mediaRows, error: mediaError } = await client
+    .from("catalog_media")
+    .select("id, storage_path")
+    .eq("catalog_item_id", id);
+
+  if (mediaError) {
+    throw new Error(mediaError.message);
+  }
+
+  const { error: deleteError } = await client
+    .from("catalog_items")
+    .delete()
+    .eq("id", id);
+
+  if (deleteError) {
+    throw new Error(deleteError.message);
+  }
+
+  if (mediaRows?.length) {
+    await client.storage
       .from("catalog-media")
-      .upload(storagePath, file, {
-        cacheControl: "3600",
-        upsert: false,
-        contentType: file.type || undefined,
-      });
-
-    if (uploadError) {
-      throw new Error(`Error al subir ${file.name}: ${uploadError.message}`);
-    }
-
-    const { data: publicUrlData } = client.storage
-      .from("catalog-media")
-      .getPublicUrl(storagePath);
-
-    const { error: mediaError } = await client.from("catalog_media").insert({
-      catalog_item_id: createdItem.id,
-      storage_path: storagePath,
-      public_url: publicUrlData.publicUrl,
-      kind: isVideoFile(file) ? "video" : "image",
-      sort_order: index,
-    });
-
-    if (mediaError) {
-      throw new Error(mediaError.message);
-    }
+      .remove(mediaRows.map((row) => row.storage_path));
   }
 }

@@ -38,9 +38,10 @@ export type AdminRemateFields = {
 
 export type AdminMediaFile = {
   id: string;
-  file: File;
   previewUrl: string;
   kind: "image" | "video";
+  file?: File;
+  storagePath?: string;
 };
 
 /** @deprecated Use AdminMediaFile */
@@ -53,6 +54,21 @@ export type PublishCatalogPayload = {
   vehiculo?: AdminVehiculoFields;
   remate?: AdminRemateFields;
   images: File[];
+};
+
+export type UpdateCatalogPayload = PublishCatalogPayload & {
+  itemId: string;
+  keptMediaIds: string[];
+};
+
+export type AdminEditCatalogItem = {
+  id: string;
+  categoria: AdminCategoria;
+  common: AdminCommonFields;
+  propiedad: AdminPropiedadFields;
+  vehiculo: AdminVehiculoFields;
+  remate: AdminRemateFields;
+  media: AdminMediaFile[];
 };
 
 export const adminCategorias: {

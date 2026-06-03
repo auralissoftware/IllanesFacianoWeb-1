@@ -55,7 +55,7 @@ export function ImageDropzone({
 
     const target = images.find((item) => item.id === id);
 
-    if (target) {
+    if (target?.file) {
       URL.revokeObjectURL(target.previewUrl);
     }
 
@@ -67,7 +67,11 @@ export function ImageDropzone({
 
   useEffect(() => {
     return () => {
-      imagesRef.current.forEach((item) => URL.revokeObjectURL(item.previewUrl));
+      imagesRef.current.forEach((item) => {
+        if (item.file) {
+          URL.revokeObjectURL(item.previewUrl);
+        }
+      });
     };
   }, []);
 
@@ -163,7 +167,7 @@ export function ImageDropzone({
                 ) : (
                   <img
                     src={item.previewUrl}
-                    alt={item.file.name}
+                    alt={item.file?.name ?? "Archivo multimedia"}
                     className="h-full w-full object-cover"
                   />
                 )}
@@ -179,7 +183,7 @@ export function ImageDropzone({
                   type="button"
                   onClick={() => removeMedia(item.id)}
                   className="admin-thumbnail-remove"
-                  aria-label={`Eliminar ${item.file.name}`}
+                  aria-label={`Eliminar ${item.file?.name ?? "archivo"}`}
                   disabled={disabled}
                 >
                   <X className="size-3.5" strokeWidth={2.5} />
