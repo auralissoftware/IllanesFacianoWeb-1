@@ -79,14 +79,13 @@ export function Footer() {
 
           <div className="footer-collaborators">
             <p className="footer-collaborators-label">Colaboradores</p>
-            <p className="footer-collaborators-list">
-              {FOOTER_COLLABORATORS.map(({ name, registration }, index) => (
+            <div className="footer-collaborators-list">
+              {FOOTER_COLLABORATORS.map(({ name, registration }) => (
                 <span key={name}>
-                  {index > 0 && <span aria-hidden> · </span>}
                   {name} — Mat. Prof. N° {registration}
                 </span>
               ))}
-            </p>
+            </div>
           </div>
 
           <p className="footer-copyright">
