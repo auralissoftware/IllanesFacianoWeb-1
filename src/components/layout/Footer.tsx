@@ -74,7 +74,15 @@ export function Footer() {
           <p className="footer-copyright">
             © {year} {LEGAL_BUSINESS_NAME}. Todos los derechos reservados.{" "}
             <span className="text-white/35">Desarrollado por</span>{" "}
-            <span className="text-white/55">Auralis Software</span>.
+            <a
+              href="https://auralissoftware.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/55 transition hover:text-celeste"
+            >
+              Auralis Software
+            </a>
+            .
           </p>
         </div>
       </div>
