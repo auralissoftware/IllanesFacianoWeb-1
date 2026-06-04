@@ -668,6 +668,18 @@
     @apply transition hover:text-celeste;
   }
 
+  .footer-collaborators {
+    @apply pt-0.5;
+  }
+
+  .footer-collaborators-label {
+    @apply text-[8px] font-medium uppercase tracking-[0.14em] text-white/18 sm:text-[9px];
+  }
+
+  .footer-collaborators-list {
+    @apply mt-0.5 text-center text-[8px] leading-snug text-white/15 sm:text-[9px];
+  }
+
   .footer-copyright {
     @apply text-[10px] leading-snug text-white/35 sm:text-[11px];
   }

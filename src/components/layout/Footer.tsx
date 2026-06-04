@@ -8,6 +8,12 @@ import {
 } from "../../lib/contact";
 import { LEGAL_BUSINESS_NAME } from "../../lib/legalSiteInfo";
 
+const FOOTER_COLLABORATORS = [
+  { name: "HEREDIA Sandra", registration: "399" },
+  { name: "MESIAS Dario", registration: "141" },
+  { name: "MESIAS Muriel", registration: "654" },
+] as const;
+
 export function Footer() {
   const year = new Date().getFullYear();
 
@@ -69,6 +75,18 @@ export function Footer() {
             <Link to="/privacidad">Política de Privacidad</Link>
             <span aria-hidden>·</span>
             <Link to="/admin/login">Administración</Link>
+          </div>
+
+          <div className="footer-collaborators">
+            <p className="footer-collaborators-label">Colaboradores</p>
+            <p className="footer-collaborators-list">
+              {FOOTER_COLLABORATORS.map(({ name, registration }, index) => (
+                <span key={name}>
+                  {index > 0 && <span aria-hidden> · </span>}
+                  {name} — Mat. Prof. N° {registration}
+                </span>
+              ))}
+            </p>
           </div>
 
           <p className="footer-copyright">
