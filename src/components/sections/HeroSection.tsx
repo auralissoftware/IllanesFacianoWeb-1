@@ -20,9 +20,11 @@ export function HeroSection({
   return (
     <section
       id="inicio"
-      className={`relative overflow-x-hidden bg-white ${compact ? "pb-6 sm:pb-8" : "pb-10 sm:pb-12"}`}
+      className={`relative overflow-hidden bg-white ${
+        compact ? "pb-6 sm:pb-8" : "pb-10 sm:pb-12"
+      }`}
     >
-      <div className="hero-bg-stack absolute inset-0">
+      <div className="hero-bg-stack pointer-events-none absolute inset-0 overflow-hidden">
         <img
           src="/images/hero-aerial.png"
           alt=""
@@ -49,7 +51,7 @@ export function HeroSection({
         }`}
       >
         <h1
-          className={`text-balance mx-auto max-w-3xl leading-[1.08] font-semibold tracking-tight text-white drop-shadow-sm ${
+          className={`hero-animate-in text-balance mx-auto max-w-3xl leading-[1.08] font-semibold tracking-tight text-white drop-shadow-sm ${
             compact
               ? "text-2xl sm:text-3xl md:text-4xl"
               : "text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem]"
@@ -59,7 +61,7 @@ export function HeroSection({
         </h1>
 
         <p
-          className={`mx-auto max-w-2xl leading-relaxed text-white/85 ${
+          className={`hero-animate-in hero-delay-1 mx-auto max-w-2xl leading-relaxed text-white/85 ${
             compact
               ? "mt-4 hidden text-sm sm:mt-5 sm:block sm:text-base lg:text-lg"
               : "mt-5 text-base sm:mt-6 sm:text-lg"
@@ -70,12 +72,14 @@ export function HeroSection({
           Illanes Faciano.
         </p>
 
-        <HeroSearch
-          initialTab={initialTab}
-          onExploreAll={onExploreAll}
-          onSearch={onSearch}
-          onTabChange={onTabChange}
-        />
+        <div className="hero-animate-in hero-delay-2">
+          <HeroSearch
+            initialTab={initialTab}
+            onExploreAll={onExploreAll}
+            onSearch={onSearch}
+            onTabChange={onTabChange}
+          />
+        </div>
       </div>
     </section>
   );

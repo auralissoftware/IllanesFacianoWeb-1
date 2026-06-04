@@ -1,63 +1,82 @@
-import { CONTACT_EMAIL } from "./contact";
+import { CONTACT_EMAIL, CONTACT_PHONE_DISPLAY } from "./contact";
+import { supabase } from "./supabase";
+import type { ContactFormPayload } from "./contactTypes";
 
-export type ContactFormPayload = {
-  service: string;
-  name: string;
-  phone: string;
-  email: string;
-  message: string;
-};
+export type { ContactFormPayload } from "./contactTypes";
 
-type SubmitResult =
-  | { ok: true }
-  | { ok: false; error: string };
+type SubmitResult = { ok: true } | { ok: false; error: string };
+
+async function saveContactInquiry(
+  payload: ContactFormPayload,
+): Promise<boolean> {
+  if (!supabase) {
+    return false;
+  }
+
+  const { error } = await supabase.from("contact_inquiries").insert({
+    service: payload.service,
+    name: payload.name.trim(),
+    phone: payload.phone.trim(),
+    email: payload.email.trim(),
+    message: payload.message.trim(),
+  });
+
+  return !error;
+}
+
+async function sendContactEmail(
+  payload: ContactFormPayload,
+): Promise<boolean> {
+  try {
+    const response = await fetch("/api/send-contact", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const data = (await response.json()) as { ok?: boolean };
+
+    return data.ok === true;
+  } catch {
+    return false;
+  }
+}
 
 export async function submitContactForm(
   payload: ContactFormPayload,
 ): Promise<SubmitResult> {
-  try {
-    const response = await fetch(
-      `https://formsubmit.co/ajax/${CONTACT_EMAIL}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          _subject: `Nueva consulta web — ${payload.service}`,
-          _template: "table",
-          _captcha: "false",
-          Motivo: payload.service,
-          Nombre: payload.name,
-          Celular: payload.phone,
-          Email: payload.email,
-          Mensaje: payload.message,
-        }),
-      },
-    );
+  const normalized: ContactFormPayload = {
+    service: payload.service.trim() || "Sin motivo seleccionado",
+    name: payload.name.trim(),
+    phone: payload.phone.trim(),
+    email: payload.email.trim(),
+    message: payload.message.trim(),
+  };
 
-    if (!response.ok) {
-      return {
-        ok: false,
-        error: "No pudimos enviar la consulta. Intentá de nuevo en unos minutos.",
-      };
-    }
-
-    const data = (await response.json()) as { success?: string };
-
-    if (data.success !== "true") {
-      return {
-        ok: false,
-        error: "No pudimos enviar la consulta. Intentá de nuevo en unos minutos.",
-      };
-    }
-
-    return { ok: true };
-  } catch {
+  if (!normalized.name || !normalized.phone || !normalized.email || !normalized.message) {
     return {
       ok: false,
-      error: "Error de conexión. Revisá tu internet e intentá de nuevo.",
+      error: "Completá todos los campos obligatorios.",
     };
   }
+
+  const [emailSent, savedInDatabase] = await Promise.all([
+    sendContactEmail(normalized),
+    saveContactInquiry(normalized),
+  ]);
+
+  if (emailSent || savedInDatabase) {
+    return { ok: true };
+  }
+
+  return {
+    ok: false,
+    error: `No pudimos enviar la consulta. Escribinos a ${CONTACT_EMAIL} o al ${CONTACT_PHONE_DISPLAY}.`,
+  };
 }

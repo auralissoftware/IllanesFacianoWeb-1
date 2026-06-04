@@ -22,3 +22,27 @@ export function getPhoneUrl(): string {
 export function getEmailUrl(): string {
   return `mailto:${CONTACT_EMAIL}`;
 }
+
+export type ContactInquiryFields = {
+  service: string;
+  name: string;
+  phone: string;
+  email: string;
+  message: string;
+};
+
+export function buildContactInquiryWhatsAppMessage(
+  fields: ContactInquiryFields,
+): string {
+  return [
+    "Consulta desde la web — Illanes Faciano",
+    "",
+    `Motivo: ${fields.service}`,
+    `Nombre: ${fields.name}`,
+    `Celular: ${fields.phone}`,
+    `Email: ${fields.email}`,
+    "",
+    "Mensaje:",
+    fields.message,
+  ].join("\n");
+}

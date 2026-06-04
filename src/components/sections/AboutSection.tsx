@@ -1,3 +1,5 @@
+import { Reveal } from "../ui/Reveal";
+
 export function AboutSection() {
   const roles = [
     "Martillero Público",
@@ -15,46 +17,60 @@ export function AboutSection() {
         aria-hidden
       />
 
-      <div className="relative mx-auto grid max-w-6xl gap-10 sm:gap-14 lg:grid-cols-[0.95fr_1.05fr] lg:gap-20">
-        <div className="text-center sm:text-left">
+      <div className="relative mx-auto max-w-6xl">
+        <Reveal className="text-center sm:text-left" variant="up">
           <span className="section-badge">Respaldo profesional</span>
 
           <h2 className="text-balance mt-5 text-2xl leading-[1.12] font-semibold tracking-tight text-slate-deep sm:text-3xl lg:text-[2.65rem]">
             El respaldo profesional detrás de cada operación
           </h2>
+        </Reveal>
 
-          <div className="relative mx-auto mt-8 inline-block sm:mx-0 sm:mt-10">
+        <div className="mt-8 flex items-start gap-5 sm:mt-10 sm:gap-8 lg:gap-12">
+          <Reveal
+            as="div"
+            className="relative mx-auto shrink-0 sm:mx-0"
+            delay={120}
+            variant="scale"
+          >
             <div
-              className="absolute -inset-3 rounded-[1.75rem] bg-gradient-to-br from-celeste/30 to-azul-francia/10 blur-sm"
+              className="absolute -inset-2 rounded-[1.5rem] bg-gradient-to-br from-celeste/30 to-azul-francia/10 blur-sm sm:-inset-3 sm:rounded-[1.75rem]"
               aria-hidden
             />
             <img
               src="/images/alberto-illanes.png"
               alt="Alberto Illanes Faciano en su puesto de martillero"
-              className="relative aspect-[4/5] w-40 rounded-[1.25rem] object-cover object-top shadow-[0_20px_50px_rgba(27,38,59,0.15)] ring-1 ring-slate-200/80 sm:w-48 md:w-52"
+              className="relative aspect-[4/5] w-32 rounded-[1.15rem] object-cover object-top shadow-[0_20px_50px_rgba(27,38,59,0.15)] ring-1 ring-slate-200/80 sm:w-44 sm:rounded-[1.25rem] md:w-52"
             />
-          </div>
-        </div>
+          </Reveal>
 
-        <div className="flex flex-col justify-center">
-          <p className="text-base leading-[1.75] text-muted sm:text-lg">
-            Más que publicaciones o simples operaciones, cada negocio necesita
-            confianza, criterio y respaldo profesional. Alberto Illanes Faciano
-            combina experiencia en el mercado inmobiliario, remates y
-            tasaciones para ofrecer operaciones seguras, transparentes y
-            respaldadas profesionalmente.
-          </p>
+          <Reveal
+            className="min-w-0 flex-1 pt-1"
+            delay={100}
+            variant="up"
+          >
+            <p className="text-left text-sm leading-[1.75] text-muted sm:text-base lg:text-lg">
+              Más que publicaciones o simples operaciones, cada negocio necesita
+              confianza, criterio y respaldo profesional. Alberto Illanes Faciano
+              combina experiencia en el mercado inmobiliario, remates y
+              tasaciones para ofrecer operaciones seguras, transparentes y
+              respaldadas profesionalmente.
+            </p>
 
-          <ul className="mt-10 flex flex-wrap gap-3">
-            {roles.map((role) => (
-              <li
-                key={role}
-                className="rounded-full border border-celeste/35 bg-celeste/10 px-4 py-2.5 text-sm font-medium text-azul-francia"
-              >
-                {role}
-              </li>
-            ))}
-          </ul>
+            <ul className="mt-6 flex flex-wrap gap-2 sm:mt-8 sm:gap-3">
+              {roles.map((role, index) => (
+                <Reveal
+                  key={role}
+                  as="li"
+                  delay={220 + index * 90}
+                  variant="fade"
+                  className="rounded-full border border-celeste/35 bg-celeste/10 px-3 py-2 text-xs font-medium text-azul-francia sm:px-4 sm:py-2.5 sm:text-sm"
+                >
+                  {role}
+                </Reveal>
+              ))}
+            </ul>
+          </Reveal>
         </div>
       </div>
     </section>
