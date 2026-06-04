@@ -1,4 +1,5 @@
 import { CONTACT_EMAIL, CONTACT_PHONE_DISPLAY } from "./contact";
+import { isContactEmailConfigured, sendContactEmail } from "./sendContactEmail";
 import { supabase } from "./supabase";
 import type { ContactFormPayload } from "./contactTypes";
 
@@ -24,30 +25,6 @@ async function saveContactInquiry(
   return !error;
 }
 
-async function sendContactEmail(
-  payload: ContactFormPayload,
-): Promise<boolean> {
-  try {
-    const response = await fetch("/api/send-contact", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      return false;
-    }
-
-    const data = (await response.json()) as { ok?: boolean };
-
-    return data.ok === true;
-  } catch {
-    return false;
-  }
-}
-
 export async function submitContactForm(
   payload: ContactFormPayload,
 ): Promise<SubmitResult> {
@@ -63,6 +40,14 @@ export async function submitContactForm(
     return {
       ok: false,
       error: "Completá todos los campos obligatorios.",
+    };
+  }
+
+  if (!isContactEmailConfigured()) {
+    return {
+      ok: false,
+      error:
+        "El envío por correo no está configurado. Agregá VITE_WEB3FORMS_ACCESS_KEY en Vercel y en tu .env local.",
     };
   }
 
