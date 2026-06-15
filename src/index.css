@@ -22,7 +22,7 @@
   }
 
   body {
-    @apply bg-white font-sans text-slate-deep antialiased;
+    @apply bg-off-white font-sans text-slate-deep antialiased;
     overflow-x: hidden;
   }
 
@@ -52,11 +52,11 @@
 
   @keyframes hero-bg-settle {
     from {
-      transform: scale(1.08);
+      transform: scale3d(1.025, 1.025, 1) translate3d(0, 0, 0);
     }
 
     to {
-      transform: scale(1.05);
+      transform: scale3d(1, 1, 1) translate3d(0, 0, 0);
     }
   }
 
@@ -72,7 +72,10 @@
   }
 
   .hero-bg-stack > img {
-    @apply h-full w-full scale-105 object-cover object-center;
+    @apply h-full w-full object-cover object-center;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    filter: contrast(1.06) saturate(1.1) brightness(1.03);
     animation: hero-bg-settle 2.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
 
@@ -405,14 +408,69 @@
     height: 55%;
     background: linear-gradient(
       to top,
-      #ffffff 0%,
-      #ffffff 18%,
-      rgba(255, 255, 255, 0.96) 32%,
-      rgba(255, 255, 255, 0.78) 48%,
-      rgba(255, 255, 255, 0.45) 62%,
-      rgba(255, 255, 255, 0.15) 78%,
+      var(--color-off-white) 0%,
+      var(--color-off-white) 18%,
+      rgba(247, 248, 250, 0.96) 32%,
+      rgba(247, 248, 250, 0.78) 48%,
+      rgba(247, 248, 250, 0.45) 62%,
+      rgba(247, 248, 250, 0.15) 78%,
       transparent 100%
     );
+  }
+
+  .page-ambient {
+    @apply pointer-events-none fixed inset-0 z-[5] overflow-hidden;
+  }
+
+  .page-ambient-base {
+    @apply absolute inset-0;
+    background:
+      radial-gradient(
+        ellipse 70% 55% at 15% 10%,
+        rgba(169, 214, 229, 0.22) 0%,
+        transparent 58%
+      ),
+      radial-gradient(
+        ellipse 55% 45% at 88% 18%,
+        rgba(0, 119, 182, 0.08) 0%,
+        transparent 60%
+      ),
+      radial-gradient(
+        ellipse 50% 40% at 50% 100%,
+        rgba(72, 202, 228, 0.1) 0%,
+        transparent 55%
+      );
+    animation: page-ambient-drift 18s ease-in-out infinite;
+  }
+
+  .page-ambient-glow {
+    @apply absolute h-[min(42vw,22rem)] w-[min(42vw,22rem)] -translate-x-1/2 -translate-y-1/2 rounded-full;
+    left: var(--x, 50%);
+    top: var(--y, 45%);
+    background: radial-gradient(
+      circle,
+      rgba(72, 202, 228, 0.16) 0%,
+      rgba(0, 119, 182, 0.06) 42%,
+      transparent 72%
+    );
+    filter: blur(2px);
+  }
+
+  @keyframes page-ambient-drift {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    50% {
+      transform: translate3d(0, -0.75rem, 0) scale(1.02);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .page-ambient-base {
+      animation: none;
+    }
   }
 
   .text-balance {

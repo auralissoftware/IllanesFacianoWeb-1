@@ -29,10 +29,12 @@ export function HeroSection({
           src="/images/hero-aerial.png"
           alt=""
           aria-hidden
-          className="absolute inset-0 h-full w-full object-cover object-center"
+          fetchPriority="high"
+          decoding="async"
+          className="hero-bg-photo absolute inset-0 h-full w-full object-cover object-center"
         />
 
-        <div className="absolute inset-0 bg-slate-deep/35" aria-hidden />
+        <div className="absolute inset-0 bg-slate-deep/28" aria-hidden />
 
         <div className="hero-mesh absolute inset-0" aria-hidden />
 
