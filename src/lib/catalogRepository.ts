@@ -25,6 +25,8 @@ import type {
   SearchTab,
 } from "./searchTypes";
 import { isVideoFile } from "./mediaUpload";
+import { slugifyTitle } from "./catalogSlug";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type CatalogMedia = {
   url: string;
@@ -33,6 +35,7 @@ export type CatalogMedia = {
 
 export type CatalogListing = {
   id: string;
+  slug: string;
   section: SearchTab;
   title: string;
   description: string;
@@ -52,6 +55,7 @@ export type CatalogListing = {
 
 type DbCatalogRow = {
   id: string;
+  slug: string;
   categoria: SearchTab;
   titulo: string;
   descripcion: string;
@@ -87,6 +91,7 @@ function mapRowToListing(row: DbCatalogRow): CatalogListing {
 
   const base: CatalogListing = {
     id: row.id,
+    slug: row.slug,
     section: row.categoria,
     title: row.titulo,
     description: row.descripcion,
@@ -195,6 +200,7 @@ function filterListings(
 
 const catalogItemSelect = `
   id,
+  slug,
   categoria,
   titulo,
   descripcion,
@@ -359,6 +365,68 @@ export async function fetchCatalogListings(
   return filterListings(listings, action);
 }
 
+async function resolveUniqueSlug(
+  client: SupabaseClient,
+  title: string,
+  excludeId?: string,
+): Promise<string> {
+  const baseSlug = slugifyTitle(title);
+  let candidate = baseSlug;
+  let counter = 2;
+
+  while (true) {
+    let query = client.from("catalog_items").select("id").eq("slug", candidate);
+
+    if (excludeId) {
+      query = query.neq("id", excludeId);
+    }
+
+    const { data, error } = await query.maybeSingle();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    if (!data) {
+      return candidate;
+    }
+
+    candidate = `${baseSlug}-${counter}`;
+    counter += 1;
+  }
+}
+
+export async function fetchCatalogListingBySlug(
+  slug: string,
+  categoria?: SearchTab,
+): Promise<CatalogListing | null> {
+  if (!supabase) {
+    return null;
+  }
+
+  let query = supabase
+    .from("catalog_items")
+    .select(catalogItemSelect)
+    .eq("slug", slug)
+    .eq("published", true);
+
+  if (categoria) {
+    query = query.eq("categoria", categoria);
+  }
+
+  const { data, error } = await query.maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  return mapRowToListing(data as DbCatalogRow);
+}
+
 export async function fetchCatalogListingById(
   id: string,
 ): Promise<CatalogListing | null> {
@@ -471,12 +539,14 @@ export async function publishCatalogItemToSupabase(
     payload.categoria === "bienes_muebles"
       ? payload.vehiculo?.estado ?? null
       : null;
+  const slug = await resolveUniqueSlug(client, payload.common.titulo.trim());
 
   const { data: createdItem, error: insertError } = await client
     .from("catalog_items")
     .insert({
       categoria: payload.categoria,
       titulo: payload.common.titulo.trim(),
+      slug,
       descripcion: payload.common.descripcion.trim(),
       ubicacion: payload.common.ubicacion.trim(),
       precio: payload.common.precio.trim(),
@@ -505,12 +575,18 @@ export async function updateCatalogItemToSupabase(
     payload.categoria === "bienes_muebles"
       ? payload.vehiculo?.estado ?? null
       : null;
+  const slug = await resolveUniqueSlug(
+    client,
+    payload.common.titulo.trim(),
+    payload.itemId,
+  );
 
   const { error: updateError } = await client
     .from("catalog_items")
     .update({
       categoria: payload.categoria,
       titulo: payload.common.titulo.trim(),
+      slug,
       descripcion: payload.common.descripcion.trim(),
       ubicacion: payload.common.ubicacion.trim(),
       precio: payload.common.precio.trim(),

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { fetchCatalogListings, type CatalogListing } from "../../lib/catalog";
+import { fetchCatalogListings, buildCatalogDetailPath, type CatalogListing } from "../../lib/catalog";
 import type { SearchAction } from "../../lib/searchTypes";
 import { CatalogEmptyState } from "./CatalogEmptyState";
 
@@ -80,7 +80,7 @@ export function CatalogResults({ action }: CatalogResultsProps) {
         return (
           <Link
             key={item.id}
-            to={`/catalogo/${item.id}`}
+            to={buildCatalogDetailPath(item.section, item.slug)}
             className="group block overflow-hidden rounded-2xl border border-slate-deep/10 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-azul-francia/20 hover:shadow-md"
           >
             <div className="aspect-[4/3] bg-off-white/70">

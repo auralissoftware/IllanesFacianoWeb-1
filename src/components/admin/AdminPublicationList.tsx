@@ -1,6 +1,7 @@
 import { ExternalLink, Pencil, Plus, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { CatalogListing } from "../../lib/catalogRepository";
+import { buildCatalogDetailPath } from "../../lib/catalog";
 import { getSectionLabel } from "../../lib/catalogDisplay";
 import {
   adminCategorias,
@@ -159,7 +160,7 @@ export function AdminPublicationList({
 
                 <div className="admin-preview-card-actions">
                   <Link
-                    to={`/catalogo/${item.id}`}
+                    to={buildCatalogDetailPath(item.section, item.slug)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="admin-preview-action admin-preview-action-view"

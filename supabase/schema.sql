@@ -4,6 +4,7 @@ create table if not exists public.catalog_items (
   id uuid primary key default gen_random_uuid(),
   categoria text not null check (categoria in ('propiedades', 'bienes_muebles', 'remates')),
   titulo text not null,
+  slug text not null unique,
   descripcion text not null,
   ubicacion text not null,
   precio text not null,
@@ -25,6 +26,7 @@ create table if not exists public.catalog_media (
 
 create index if not exists catalog_items_categoria_idx on public.catalog_items (categoria);
 create index if not exists catalog_items_published_idx on public.catalog_items (published);
+create index if not exists catalog_items_slug_idx on public.catalog_items (slug);
 create index if not exists catalog_media_item_idx on public.catalog_media (catalog_item_id);
 
 grant usage on schema public to anon, authenticated;

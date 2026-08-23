@@ -1,26 +1,40 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { CatalogItemDetail } from "../components/sections/CatalogItemDetail";
 import {
-  fetchCatalogListingById,
+  buildCatalogDetailPath,
+  categoriaFromSlugSegment,
+} from "../lib/catalogSlug";
+import {
+  fetchCatalogListingBySlug,
   type CatalogListing,
 } from "../lib/catalog";
 
 export function CatalogDetailPage() {
-  const { id } = useParams<{ id: string }>();
+  const { categoria: categoriaParam, slug } = useParams<{
+    categoria: string;
+    slug: string;
+  }>();
   const [item, setItem] = useState<CatalogListing | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!id) {
+    if (!slug || !categoriaParam) {
       setIsLoading(false);
       setError("Publicación no encontrada.");
       return;
     }
 
-    const listingId = id;
+    const categoria = categoriaFromSlugSegment(categoriaParam);
+
+    if (!categoria) {
+      setIsLoading(false);
+      setError("Publicación no encontrada.");
+      return;
+    }
+
     let cancelled = false;
 
     async function loadItem() {
@@ -28,7 +42,7 @@ export function CatalogDetailPage() {
       setError("");
 
       try {
-        const listing = await fetchCatalogListingById(listingId);
+        const listing = await fetchCatalogListingBySlug(slug!, categoria!);
 
         if (!cancelled) {
           setItem(listing);
@@ -57,7 +71,7 @@ export function CatalogDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [categoriaParam, slug]);
 
   if (isLoading) {
     return (
@@ -82,6 +96,12 @@ export function CatalogDetailPage() {
         </Link>
       </main>
     );
+  }
+
+  const canonicalPath = buildCatalogDetailPath(item.section, item.slug);
+
+  if (categoriaParam && slug && canonicalPath !== `/catalogo/${categoriaParam}/${slug}`) {
+    return <Navigate to={canonicalPath} replace />;
   }
 
   return <CatalogItemDetail item={item} />;

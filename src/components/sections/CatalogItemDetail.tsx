@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ArrowLeft, Expand, MapPin, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { CatalogListing } from "../../lib/catalog";
+import { buildCatalogDetailUrl, type CatalogListing } from "../../lib/catalog";
 import {
   getCatalogDetailRows,
   getSectionLabel,
@@ -18,7 +18,11 @@ export function CatalogItemDetail({ item }: CatalogItemDetailProps) {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const detailRows = getCatalogDetailRows(item);
   const activeMedia = item.media[activeMediaIndex];
-  const publicationUrl = `${window.location.origin}/catalogo/${item.id}`;
+  const publicationUrl = buildCatalogDetailUrl(
+    window.location.origin,
+    item.section,
+    item.slug,
+  );
   const whatsappMessage = `¡Hola! Me interesa este artículo ${publicationUrl}. ¿Me podría pasar más información?`;
 
   function openLightbox(index = activeMediaIndex) {
