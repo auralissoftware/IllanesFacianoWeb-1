@@ -10,7 +10,7 @@ export function AboutSection() {
   return (
     <section
       id="servicios"
-      className="relative overflow-hidden bg-white px-4 pt-12 pb-16 sm:px-6 sm:pt-14 sm:pb-20 lg:px-10 lg:pt-16 lg:pb-24"
+      className="relative z-10 -mt-10 overflow-hidden bg-white px-4 pt-12 pb-16 sm:-mt-14 sm:px-6 sm:pt-14 sm:pb-20 lg:-mt-16 lg:px-10 lg:pt-16 lg:pb-24"
     >
       <div
         className="pointer-events-none absolute top-32 right-0 h-72 w-72 rounded-full bg-celeste/15 blur-3xl"

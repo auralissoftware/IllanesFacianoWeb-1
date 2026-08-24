@@ -20,8 +20,8 @@ export function HeroSection({
   return (
     <section
       id="inicio"
-      className={`relative overflow-hidden bg-white ${
-        compact ? "pb-6 sm:pb-8" : "pb-10 sm:pb-12"
+      className={`hero-section relative overflow-hidden bg-white ${
+        compact ? "hero-section--compact pb-6 sm:pb-8" : "hero-section--full pb-10 sm:pb-12"
       }`}
     >
       <div className="hero-bg-stack pointer-events-none absolute inset-0 overflow-hidden">
@@ -40,8 +40,6 @@ export function HeroSection({
 
         <div className="hero-overlay-top absolute inset-x-0 top-0 h-64" aria-hidden />
       </div>
-
-      <div className="hero-fade-bottom pointer-events-none absolute inset-x-0 bottom-0 z-[1]" aria-hidden />
 
       <Navbar compact={compact} />
 
