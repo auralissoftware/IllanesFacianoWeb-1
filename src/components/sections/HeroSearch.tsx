@@ -552,6 +552,7 @@ type HeroSearchProps = {
   onExploreAll?: (tab: SearchTab) => void;
   onSearch?: (action: SearchAction) => void;
   onTabChange?: (tab: SearchTab) => void;
+  showExploreAll?: boolean;
 };
 
 export function HeroSearch({
@@ -559,6 +560,7 @@ export function HeroSearch({
   onExploreAll,
   onSearch,
   onTabChange,
+  showExploreAll = true,
 }: HeroSearchProps = {}) {
   const [activeTab, setActiveTab] = useState<SearchTab>(initialTab);
   const [propiedades, setPropiedades] =
@@ -786,13 +788,15 @@ export function HeroSearch({
         </div>
       </div>
 
-      <button
-        type="button"
-        onClick={handleExploreAll}
-        className="search-explore-btn mx-auto mt-4"
-      >
-        ✨ Explorar catálogo completo sin filtros
-      </button>
+      {showExploreAll && (
+        <button
+          type="button"
+          onClick={handleExploreAll}
+          className="search-explore-btn mx-auto mt-4"
+        >
+          ✨ Explorar catálogo completo sin filtros
+        </button>
+      )}
 
       {!isControlled && lastAction && (
         <p className="mt-4 text-center text-xs font-medium text-slate-deep/70" aria-live="polite">

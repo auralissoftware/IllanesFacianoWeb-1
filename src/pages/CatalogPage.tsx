@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { useLocation } from "react-router-dom";
 import { HeroSection } from "../components/sections/HeroSection";
 import { CatalogResults } from "../components/sections/CatalogResults";
 import type { SearchAction, SearchTab } from "../lib/searchTypes";
@@ -48,24 +47,15 @@ export function CatalogPage() {
         onExploreAll={handleExploreAll}
         onSearch={handleSearch}
         onTabChange={handleExploreAll}
-        compact
+        showExploreAll={false}
+        backLink={{ to: "/", label: "Volver al inicio" }}
       />
 
       <section
         id="catalogo"
-        className="catalog-content-section relative z-10 bg-white safe-fab-padding sm:pb-28"
+        className="catalog-listing-section safe-fab-padding sm:pb-28"
         aria-label="Resultados del catálogo"
       >
-        <div className="mx-auto max-w-6xl px-4 pt-5 sm:px-6 sm:pt-6 lg:px-10">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 text-sm font-medium text-azul-francia transition hover:text-navy"
-          >
-            <ArrowLeft className="size-4" strokeWidth={2} />
-            Volver al inicio
-          </Link>
-        </div>
-
         <CatalogResults action={action} />
       </section>
     </main>

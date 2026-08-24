@@ -8,3 +8,6 @@ grant insert, delete on public.catalog_media to authenticated;
 
 grant insert on public.contact_inquiries to anon, authenticated;
 grant select on public.contact_inquiries to authenticated;
+
+grant select on public.catalog_views to authenticated;
+grant insert on public.catalog_views to anon, authenticated;

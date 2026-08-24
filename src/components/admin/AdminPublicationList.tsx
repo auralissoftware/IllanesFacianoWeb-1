@@ -1,4 +1,4 @@
-import { ExternalLink, Pencil, Plus, Trash2 } from "lucide-react";
+import { ExternalLink, Eye, Pencil, Plus, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { CatalogListing } from "../../lib/catalogRepository";
 import { buildCatalogDetailPath } from "../../lib/catalog";
@@ -12,6 +12,7 @@ type FilterTab = AdminCategoria | "all";
 
 type AdminPublicationListProps = {
   items: CatalogListing[];
+  viewCountsByItem: Record<string, number>;
   isLoading: boolean;
   error: string;
   filterTab: FilterTab;
@@ -29,6 +30,7 @@ const filterTabs: { id: FilterTab; label: string }[] = [
 
 export function AdminPublicationList({
   items,
+  viewCountsByItem,
   isLoading,
   error,
   filterTab,
@@ -111,6 +113,7 @@ export function AdminPublicationList({
           {filteredItems.map((item) => {
             const cover = item.media[0];
             const isDeleting = deletingId === item.id;
+            const viewCount = viewCountsByItem[item.id] ?? 0;
 
             return (
               <article
@@ -142,6 +145,11 @@ export function AdminPublicationList({
 
                   <span className="admin-preview-card-badge">
                     {getSectionLabel(item.section)}
+                  </span>
+
+                  <span className="admin-preview-card-views">
+                    <Eye className="size-3.5" strokeWidth={2} />
+                    {viewCount.toLocaleString("es-AR")}
                   </span>
                 </div>
 

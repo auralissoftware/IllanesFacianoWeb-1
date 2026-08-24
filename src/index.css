@@ -386,48 +386,36 @@
   .hero-section::after {
     content: "";
     @apply pointer-events-none absolute inset-x-0 bottom-0 z-[2];
+  }
+
+  .hero-section--full::after {
+    height: min(52%, 26rem);
     background: linear-gradient(
       to top,
       #ffffff 0%,
       #ffffff 14%,
-      rgba(255, 255, 255, 0.96) 32%,
-      rgba(255, 255, 255, 0.82) 50%,
-      rgba(255, 255, 255, 0.48) 68%,
-      rgba(255, 255, 255, 0.16) 84%,
+      rgba(255, 255, 255, 0.96) 30%,
+      rgba(255, 255, 255, 0.82) 46%,
+      rgba(255, 255, 255, 0.48) 62%,
+      rgba(255, 255, 255, 0.14) 78%,
       transparent 100%
     );
   }
 
-  .hero-section--full::after {
-    height: min(58%, 26rem);
-  }
-
-  .hero-section--compact::after {
-    height: min(72%, 16rem);
-    background: linear-gradient(
-      to top,
-      #ffffff 0%,
-      #ffffff 22%,
-      rgba(255, 255, 255, 0.97) 42%,
-      rgba(255, 255, 255, 0.78) 62%,
-      rgba(255, 255, 255, 0.38) 80%,
-      transparent 100%
-    );
-  }
-
-  .catalog-content-section {
-    margin-top: -3.5rem;
+  .catalog-listing-section {
+    @apply relative z-[1] bg-white;
+    margin-top: -4.5rem;
   }
 
   @media (min-width: 640px) {
-    .catalog-content-section {
-      margin-top: -5rem;
+    .catalog-listing-section {
+      margin-top: -6.5rem;
     }
   }
 
   @media (min-width: 1024px) {
-    .catalog-content-section {
-      margin-top: -6rem;
+    .catalog-listing-section {
+      margin-top: -8rem;
     }
   }
 
@@ -578,6 +566,74 @@
 
   .admin-preview-card-badge {
     @apply absolute top-3 left-3 rounded-full bg-white/95 px-3 py-1 text-[11px] font-semibold tracking-wide text-navy uppercase shadow-sm;
+  }
+
+  .admin-preview-card-views {
+    @apply absolute top-3 right-3 inline-flex items-center gap-1.5 rounded-full bg-slate-deep/85 px-3 py-1 text-[11px] font-semibold text-white shadow-sm;
+  }
+
+  .admin-stats-panel {
+    @apply rounded-2xl border border-slate-200/90 bg-off-white/50 p-5 sm:p-6;
+  }
+
+  .admin-stats-panel-header {
+    @apply flex items-start gap-3;
+  }
+
+  .admin-stats-panel-icon {
+    @apply flex size-11 shrink-0 items-center justify-center rounded-2xl border border-celeste/25 bg-celeste/10;
+  }
+
+  .admin-stats-empty {
+    @apply mt-5 rounded-2xl border border-dashed border-slate-200/90 bg-white px-5 py-8 text-center text-sm text-muted;
+  }
+
+  .admin-stats-grid {
+    @apply mt-5 grid gap-5 lg:grid-cols-2;
+  }
+
+  .admin-stats-card {
+    @apply rounded-2xl border border-slate-200/90 bg-white p-5;
+  }
+
+  .admin-stats-card-title {
+    @apply mb-4 flex items-center gap-2 text-sm font-semibold text-navy;
+  }
+
+  .admin-stats-top-list {
+    @apply space-y-3;
+  }
+
+  .admin-stats-top-item {
+    @apply flex items-center gap-3 rounded-xl border border-slate-100 bg-off-white/50 px-3 py-2.5;
+  }
+
+  .admin-stats-rank {
+    @apply flex size-7 shrink-0 items-center justify-center rounded-full bg-azul-francia/10 text-xs font-bold text-azul-francia;
+  }
+
+  .admin-stats-count {
+    @apply inline-flex shrink-0 items-center gap-1 rounded-full bg-celeste/15 px-2.5 py-1 text-xs font-semibold text-azul-francia;
+  }
+
+  .admin-stats-province-list {
+    @apply space-y-3;
+  }
+
+  .admin-stats-province-item {
+    @apply space-y-1.5;
+  }
+
+  .admin-stats-province-row {
+    @apply flex items-center justify-between gap-3;
+  }
+
+  .admin-stats-province-bar-track {
+    @apply h-2 overflow-hidden rounded-full bg-off-white;
+  }
+
+  .admin-stats-province-bar-fill {
+    @apply h-full rounded-full bg-gradient-to-r from-celeste to-azul-francia;
   }
 
   .admin-preview-card-body {

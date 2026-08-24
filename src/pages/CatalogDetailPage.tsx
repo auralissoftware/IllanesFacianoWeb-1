@@ -10,6 +10,7 @@ import {
   fetchCatalogListingBySlug,
   type CatalogListing,
 } from "../lib/catalog";
+import { trackCatalogView } from "../lib/trackCatalogView";
 
 export function CatalogDetailPage() {
   const { categoria: categoriaParam, slug } = useParams<{
@@ -46,7 +47,9 @@ export function CatalogDetailPage() {
 
         if (!cancelled) {
           setItem(listing);
-          if (!listing) {
+          if (listing) {
+            void trackCatalogView(listing.id);
+          } else {
             setError("Esta publicación no existe o ya no está disponible.");
           }
         }
