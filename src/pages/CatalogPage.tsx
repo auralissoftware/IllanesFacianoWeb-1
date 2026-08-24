@@ -53,7 +53,7 @@ export function CatalogPage() {
 
       <section
         id="catalogo"
-        className="catalog-listing-section safe-fab-padding sm:pb-28"
+        className="relative z-10 -mt-10 overflow-hidden bg-white safe-fab-padding sm:-mt-14 sm:pb-28 lg:-mt-16"
         aria-label="Resultados del catálogo"
       >
         <CatalogResults action={action} />
