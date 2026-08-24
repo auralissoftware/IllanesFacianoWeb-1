@@ -1,5 +1,4 @@
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
-import { PageAmbientBackground } from "./components/layout/PageAmbientBackground";
 import { WhatsAppFloatButton } from "./components/layout/WhatsAppFloatButton";
 import { AdminDashboardPage } from "./pages/AdminDashboardPage";
 import { AdminLoginPage } from "./pages/AdminLoginPage";
@@ -16,7 +15,6 @@ function AppRoutes() {
 
   return (
     <>
-      {!isAdminRoute && <PageAmbientBackground />}
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/catalogo" element={<CatalogPage />} />

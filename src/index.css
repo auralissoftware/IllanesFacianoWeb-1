@@ -22,7 +22,7 @@
   }
 
   body {
-    @apply bg-off-white font-sans text-slate-deep antialiased;
+    @apply bg-white font-sans text-slate-deep antialiased;
     overflow-x: hidden;
   }
 
@@ -383,94 +383,19 @@
       );
   }
 
-  .hero-bg-stack {
-    -webkit-mask-image: linear-gradient(
-      to bottom,
-      black 0%,
-      black 28%,
-      rgba(0, 0, 0, 0.92) 48%,
-      rgba(0, 0, 0, 0.65) 62%,
-      rgba(0, 0, 0, 0.28) 78%,
-      transparent 100%
-    );
-    mask-image: linear-gradient(
-      to bottom,
-      black 0%,
-      black 28%,
-      rgba(0, 0, 0, 0.92) 48%,
-      rgba(0, 0, 0, 0.65) 62%,
-      rgba(0, 0, 0, 0.28) 78%,
-      transparent 100%
-    );
-  }
-
   .hero-fade-bottom {
-    height: 55%;
+    height: 72%;
     background: linear-gradient(
       to top,
-      var(--color-off-white) 0%,
-      var(--color-off-white) 18%,
-      rgba(247, 248, 250, 0.96) 32%,
-      rgba(247, 248, 250, 0.78) 48%,
-      rgba(247, 248, 250, 0.45) 62%,
-      rgba(247, 248, 250, 0.15) 78%,
+      #ffffff 0%,
+      #ffffff 12%,
+      rgba(255, 255, 255, 0.97) 28%,
+      rgba(255, 255, 255, 0.88) 44%,
+      rgba(255, 255, 255, 0.62) 58%,
+      rgba(255, 255, 255, 0.32) 72%,
+      rgba(255, 255, 255, 0.1) 86%,
       transparent 100%
     );
-  }
-
-  .page-ambient {
-    @apply pointer-events-none fixed inset-0 z-[5] overflow-hidden;
-  }
-
-  .page-ambient-base {
-    @apply absolute inset-0;
-    background:
-      radial-gradient(
-        ellipse 70% 55% at 15% 10%,
-        rgba(169, 214, 229, 0.22) 0%,
-        transparent 58%
-      ),
-      radial-gradient(
-        ellipse 55% 45% at 88% 18%,
-        rgba(0, 119, 182, 0.08) 0%,
-        transparent 60%
-      ),
-      radial-gradient(
-        ellipse 50% 40% at 50% 100%,
-        rgba(72, 202, 228, 0.1) 0%,
-        transparent 55%
-      );
-    animation: page-ambient-drift 18s ease-in-out infinite;
-  }
-
-  .page-ambient-glow {
-    @apply absolute h-[min(42vw,22rem)] w-[min(42vw,22rem)] -translate-x-1/2 -translate-y-1/2 rounded-full;
-    left: var(--x, 50%);
-    top: var(--y, 45%);
-    background: radial-gradient(
-      circle,
-      rgba(72, 202, 228, 0.16) 0%,
-      rgba(0, 119, 182, 0.06) 42%,
-      transparent 72%
-    );
-    filter: blur(2px);
-  }
-
-  @keyframes page-ambient-drift {
-    0%,
-    100% {
-      transform: translate3d(0, 0, 0) scale(1);
-    }
-
-    50% {
-      transform: translate3d(0, -0.75rem, 0) scale(1.02);
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .page-ambient-base {
-      animation: none;
-    }
   }
 
   .text-balance {
