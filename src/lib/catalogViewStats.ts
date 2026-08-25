@@ -1,4 +1,4 @@
-import { requireSupabase } from "./supabase";
+import { ensureAdminSession } from "./adminAuth";
 
 export type TopCatalogPublication = {
   catalogItemId: string;
@@ -19,12 +19,18 @@ export type CatalogViewStats = {
   viewCountsByItem: Record<string, number>;
 };
 
-async function requireAdminClient() {
-  return requireSupabase();
+function isMissingStatsSetup(message: string): boolean {
+  const normalized = message.toLowerCase();
+
+  return (
+    normalized.includes("could not find the function") ||
+    normalized.includes("does not exist") ||
+    normalized.includes("permission denied for function")
+  );
 }
 
 export async function fetchCatalogViewStats(): Promise<CatalogViewStats> {
-  const client = await requireAdminClient();
+  const client = await ensureAdminSession();
 
   const [topResult, provinceResult, countsResult] = await Promise.all([
     client.rpc("get_top_catalog_publications", { p_limit: 5 }),
@@ -32,16 +38,17 @@ export async function fetchCatalogViewStats(): Promise<CatalogViewStats> {
     client.rpc("get_catalog_view_counts"),
   ]);
 
-  if (topResult.error) {
-    throw new Error(topResult.error.message);
-  }
+  const statsError =
+    topResult.error?.message ??
+    provinceResult.error?.message ??
+    countsResult.error?.message;
 
-  if (provinceResult.error) {
-    throw new Error(provinceResult.error.message);
-  }
+  if (statsError) {
+    if (isMissingStatsSetup(statsError)) {
+      return { topPublications: [], byProvince: [], viewCountsByItem: {} };
+    }
 
-  if (countsResult.error) {
-    throw new Error(countsResult.error.message);
+    throw new Error(statsError);
   }
 
   const topPublications: TopCatalogPublication[] = (topResult.data ?? []).map(
@@ -78,13 +85,17 @@ export async function fetchCatalogViewStats(): Promise<CatalogViewStats> {
 export async function fetchCatalogItemViewProvinces(
   itemId: string,
 ): Promise<ProvinceViewStat[]> {
-  const client = await requireAdminClient();
+  const client = await ensureAdminSession();
 
   const { data, error } = await client.rpc("get_catalog_item_view_provinces", {
     p_item_id: itemId,
   });
 
   if (error) {
+    if (isMissingStatsSetup(error.message)) {
+      return [];
+    }
+
     throw new Error(error.message);
   }
 

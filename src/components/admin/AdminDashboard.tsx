@@ -7,7 +7,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { adminLogout } from "../../lib/adminAuth";
+import { adminLogout, isJwtSessionError, mapSupabaseSessionError } from "../../lib/adminAuth";
 import {
   fetchAdminCatalogItemForEdit,
   fetchAdminCatalogItems,
@@ -169,15 +169,25 @@ export function AdminDashboard() {
       setViewStats(stats);
     } catch (error) {
       setViewStats(null);
-      setStatsError(
+      const rawMessage =
         error instanceof Error
           ? error.message
-          : "No pudimos cargar las estadísticas de visitas.",
-      );
+          : "No pudimos cargar las estadísticas de visitas.";
+
+      if (isJwtSessionError(rawMessage)) {
+        await adminLogout();
+        navigate("/admin/login", {
+          replace: true,
+          state: { authError: mapSupabaseSessionError(rawMessage) },
+        });
+        return;
+      }
+
+      setStatsError(mapSupabaseSessionError(rawMessage));
     } finally {
       setIsLoadingStats(false);
     }
-  }, []);
+  }, [navigate]);
 
   const loadItems = useCallback(async () => {
     setIsLoadingList(true);
@@ -188,15 +198,25 @@ export function AdminDashboard() {
       setItems(listings);
     } catch (error) {
       setItems([]);
-      setListError(
+      const rawMessage =
         error instanceof Error
           ? error.message
-          : "No pudimos cargar las publicaciones.",
-      );
+          : "No pudimos cargar las publicaciones.";
+
+      if (isJwtSessionError(rawMessage)) {
+        await adminLogout();
+        navigate("/admin/login", {
+          replace: true,
+          state: { authError: mapSupabaseSessionError(rawMessage) },
+        });
+        return;
+      }
+
+      setListError(mapSupabaseSessionError(rawMessage));
     } finally {
       setIsLoadingList(false);
     }
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     loadItems();

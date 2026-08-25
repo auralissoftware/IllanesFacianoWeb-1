@@ -177,16 +177,64 @@ export async function adminLogout(): Promise<void> {
   await supabase.auth.signOut();
 }
 
+export function isJwtSessionError(message: string): boolean {
+  const normalized = message.toLowerCase();
+
+  return (
+    normalized.includes("jwt issued at future") ||
+    normalized.includes("jwt expired") ||
+    normalized.includes("invalid jwt") ||
+    normalized.includes("session not found")
+  );
+}
+
+export function mapSupabaseSessionError(message: string): string {
+  if (message.toLowerCase().includes("jwt issued at future")) {
+    return "La hora de tu dispositivo está adelantada. Sincronizá la fecha y hora del sistema, cerrá sesión e ingresá de nuevo.";
+  }
+
+  if (isJwtSessionError(message)) {
+    return "Tu sesión expiró o dejó de ser válida. Volvé a iniciar sesión.";
+  }
+
+  return message;
+}
+
+export async function ensureAdminSession() {
+  const client = requireSupabase();
+
+  const { data: userData, error: userError } = await client.auth.getUser();
+
+  if (!userError && userData.user) {
+    return client;
+  }
+
+  const { data: refreshData, error: refreshError } =
+    await client.auth.refreshSession();
+
+  if (!refreshError && refreshData.session) {
+    return client;
+  }
+
+  const message =
+    refreshError?.message ??
+    userError?.message ??
+    "Tenés que iniciar sesión en el panel admin.";
+
+  throw new Error(message);
+}
+
 export async function hasAdminSession(): Promise<boolean> {
   if (!supabase) {
     return false;
   }
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  return Boolean(session);
+  try {
+    await ensureAdminSession();
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function formatLockoutTime(ms: number): string {

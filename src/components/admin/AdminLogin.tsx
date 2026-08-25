@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
 import { ArrowLeft, Eye, EyeOff, Lock, Mail } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   adminLogin,
   clearFailedAttempts,
@@ -19,6 +19,7 @@ type FieldErrors = {
 
 export function AdminLogin() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [view, setView] = useState<ViewMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,6 +32,16 @@ export function AdminLogin() {
   const [lockoutRemainingMs, setLockoutRemainingMs] = useState(0);
 
   const isLocked = lockoutRemainingMs > 0;
+
+  useEffect(() => {
+    const authError = (location.state as { authError?: string } | null)?.authError;
+
+    if (authError) {
+      setAlertMessage(authError);
+      setHasAuthError(true);
+      navigate(location.pathname, { replace: true, state: null });
+    }
+  }, [location.pathname, location.state, navigate]);
 
   useEffect(() => {
     function syncLockout() {

@@ -17,6 +17,7 @@ import {
   initialVehiculoFields,
 } from "../types/adminCatalog";
 import { filterBienesMuebles } from "./searchFilters";
+import { ensureAdminSession } from "./adminAuth";
 import { requireSupabase, supabase } from "./supabase";
 import type {
   PropiedadesFilters,
@@ -276,17 +277,7 @@ function mapRowToAdminEditItem(row: DbCatalogRow): AdminEditCatalogItem {
 }
 
 async function requireAdminSession() {
-  const client = requireSupabase();
-
-  const {
-    data: { session },
-  } = await client.auth.getSession();
-
-  if (!session) {
-    throw new Error("Tenés que iniciar sesión en el panel admin.");
-  }
-
-  return client;
+  return ensureAdminSession();
 }
 
 async function uploadMediaFiles(
@@ -491,11 +482,9 @@ function buildDetails(payload: PublishCatalogPayload): Record<string, string> {
 }
 
 export async function fetchAdminCatalogItems(): Promise<CatalogListing[]> {
-  if (!supabase) {
-    return [];
-  }
+  const client = await requireAdminSession();
 
-  const { data, error } = await supabase
+  const { data, error } = await client
     .from("catalog_items")
     .select(catalogItemSelect)
     .order("created_at", { ascending: false });
