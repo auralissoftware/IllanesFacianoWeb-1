@@ -81,7 +81,7 @@ as $$
   from public.catalog_views
   where country in ('AR', 'Argentina')
   group by 1
-  order by view_count desc, province asc;
+  order by 2 desc, 1 asc;
 $$;
 
 -- Conteo de visitas por publicación (para el listado admin)
@@ -118,7 +118,7 @@ as $$
   where catalog_item_id = p_item_id
     and country in ('AR', 'Argentina')
   group by 1
-  order by view_count desc, province asc;
+  order by 2 desc, 1 asc;
 $$;
 
 -- Total de visitas del sitio (todas las publicaciones)
@@ -149,7 +149,7 @@ as $$
   from public.catalog_views
   where country in ('AR', 'Argentina')
   group by catalog_item_id, 2
-  order by catalog_item_id, view_count desc, province asc;
+  order by catalog_item_id, 3 desc, 2 asc;
 $$;
 
 revoke all on function public.get_catalog_total_views() from public;
