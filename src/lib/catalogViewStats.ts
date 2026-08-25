@@ -1,22 +1,14 @@
 import { ensureAdminSession } from "./adminAuth";
 
-export type TopCatalogPublication = {
-  catalogItemId: string;
-  title: string;
-  slug: string;
-  categoria: string;
-  viewCount: number;
-};
-
 export type ProvinceViewStat = {
   province: string;
   viewCount: number;
 };
 
 export type CatalogViewStats = {
-  topPublications: TopCatalogPublication[];
-  byProvince: ProvinceViewStat[];
+  totalSiteViews: number;
   viewCountsByItem: Record<string, number>;
+  provincesByItem: Record<string, ProvinceViewStat[]>;
 };
 
 function isMissingStatsSetup(message: string): boolean {
@@ -29,78 +21,57 @@ function isMissingStatsSetup(message: string): boolean {
   );
 }
 
+const emptyStats: CatalogViewStats = {
+  totalSiteViews: 0,
+  viewCountsByItem: {},
+  provincesByItem: {},
+};
+
 export async function fetchCatalogViewStats(): Promise<CatalogViewStats> {
   const client = await ensureAdminSession();
 
-  const [topResult, provinceResult, countsResult] = await Promise.all([
-    client.rpc("get_top_catalog_publications", { p_limit: 5 }),
-    client.rpc("get_catalog_views_by_province"),
+  const [totalResult, countsResult, provincesResult] = await Promise.all([
+    client.rpc("get_catalog_total_views"),
     client.rpc("get_catalog_view_counts"),
+    client.rpc("get_all_catalog_item_view_provinces"),
   ]);
 
   const statsError =
-    topResult.error?.message ??
-    provinceResult.error?.message ??
-    countsResult.error?.message;
+    totalResult.error?.message ??
+    countsResult.error?.message ??
+    provincesResult.error?.message;
 
   if (statsError) {
     if (isMissingStatsSetup(statsError)) {
-      return { topPublications: [], byProvince: [], viewCountsByItem: {} };
+      return emptyStats;
     }
 
     throw new Error(statsError);
   }
-
-  const topPublications: TopCatalogPublication[] = (topResult.data ?? []).map(
-    (row: {
-      catalog_item_id: string;
-      titulo: string;
-      slug: string;
-      categoria: string;
-      view_count: number;
-    }) => ({
-      catalogItemId: row.catalog_item_id,
-      title: row.titulo,
-      slug: row.slug,
-      categoria: row.categoria,
-      viewCount: Number(row.view_count),
-    }),
-  );
-
-  const byProvince: ProvinceViewStat[] = (provinceResult.data ?? []).map(
-    (row: { province: string; view_count: number }) => ({
-      province: row.province,
-      viewCount: Number(row.view_count),
-    }),
-  );
 
   const viewCountsByItem: Record<string, number> = {};
   for (const row of countsResult.data ?? []) {
     viewCountsByItem[row.catalog_item_id] = Number(row.view_count);
   }
 
-  return { topPublications, byProvince, viewCountsByItem };
-}
+  const provincesByItem: Record<string, ProvinceViewStat[]> = {};
+  for (const row of provincesResult.data ?? []) {
+    const itemId = row.catalog_item_id as string;
+    const entry: ProvinceViewStat = {
+      province: row.province,
+      viewCount: Number(row.view_count),
+    };
 
-export async function fetchCatalogItemViewProvinces(
-  itemId: string,
-): Promise<ProvinceViewStat[]> {
-  const client = await ensureAdminSession();
-
-  const { data, error } = await client.rpc("get_catalog_item_view_provinces", {
-    p_item_id: itemId,
-  });
-
-  if (error) {
-    if (isMissingStatsSetup(error.message)) {
-      return [];
+    if (!provincesByItem[itemId]) {
+      provincesByItem[itemId] = [];
     }
 
-    throw new Error(error.message);
+    provincesByItem[itemId].push(entry);
   }
 
-  return (data ?? []).map((row: { province: string; view_count: number }) => ({
-    province: row.province,
-    viewCount: Number(row.view_count),
-  }));
+  return {
+    totalSiteViews: Number(totalResult.data ?? 0),
+    viewCountsByItem,
+    provincesByItem,
+  };
 }

@@ -555,6 +555,38 @@
     @apply absolute top-3 right-3 inline-flex items-center gap-1.5 rounded-full bg-slate-deep/85 px-3 py-1 text-[11px] font-semibold text-white shadow-sm;
   }
 
+  .admin-site-total {
+    @apply flex flex-wrap items-center gap-2 rounded-2xl border border-celeste/30 bg-celeste/10 px-4 py-3;
+  }
+
+  .admin-site-total-value {
+    @apply rounded-full bg-white px-3 py-1 text-sm font-semibold text-azul-francia shadow-sm;
+  }
+
+  .admin-preview-card-stats {
+    @apply mt-4 rounded-xl border border-slate-100 bg-off-white/70 px-3 py-2.5;
+  }
+
+  .admin-preview-card-stats-title {
+    @apply flex items-center gap-1.5 text-[11px] font-semibold tracking-wide text-muted uppercase;
+  }
+
+  .admin-preview-card-stats-list {
+    @apply mt-2 space-y-1;
+  }
+
+  .admin-preview-card-stats-row {
+    @apply flex items-center justify-between gap-3 text-xs text-slate-deep;
+  }
+
+  .admin-preview-card-stats-row span:last-child {
+    @apply shrink-0 font-semibold text-azul-francia;
+  }
+
+  .admin-preview-card-stats-more {
+    @apply mt-1.5 text-[11px] text-muted;
+  }
+
   .admin-stats-panel {
     @apply rounded-2xl border border-slate-200/90 bg-off-white/50 p-5 sm:p-6;
   }

@@ -1,8 +1,9 @@
-import { ExternalLink, Eye, Pencil, Plus, Trash2 } from "lucide-react";
+import { ExternalLink, Eye, Globe, MapPin, Pencil, Plus, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { CatalogListing } from "../../lib/catalogRepository";
 import { buildCatalogDetailPath } from "../../lib/catalog";
 import { getSectionLabel } from "../../lib/catalogDisplay";
+import type { ProvinceViewStat } from "../../lib/catalogViewStats";
 import {
   adminCategorias,
   type AdminCategoria,
@@ -12,8 +13,12 @@ type FilterTab = AdminCategoria | "all";
 
 type AdminPublicationListProps = {
   items: CatalogListing[];
+  totalSiteViews: number;
   viewCountsByItem: Record<string, number>;
+  provincesByItem: Record<string, ProvinceViewStat[]>;
   isLoading: boolean;
+  isLoadingStats: boolean;
+  statsError: string;
   error: string;
   filterTab: FilterTab;
   deletingId: string | null;
@@ -28,10 +33,69 @@ const filterTabs: { id: FilterTab; label: string }[] = [
   ...adminCategorias.map(({ id, label }) => ({ id, label })),
 ];
 
+const MAX_PROVINCES_SHOWN = 4;
+
+function formatCount(value: number): string {
+  return value.toLocaleString("es-AR");
+}
+
+function PublicationProvinceStats({
+  provinces,
+  viewCount,
+}: {
+  provinces: ProvinceViewStat[];
+  viewCount: number;
+}) {
+  if (viewCount === 0) {
+    return (
+      <p className="mt-3 text-xs text-muted">
+        Todavía no hay visitas registradas.
+      </p>
+    );
+  }
+
+  if (provinces.length === 0) {
+    return (
+      <p className="mt-3 text-xs text-muted">
+        {formatCount(viewCount)} visitas · sin provincia detectada todavía
+      </p>
+    );
+  }
+
+  const visibleProvinces = provinces.slice(0, MAX_PROVINCES_SHOWN);
+  const hiddenCount = provinces.length - visibleProvinces.length;
+
+  return (
+    <div className="admin-preview-card-stats">
+      <p className="admin-preview-card-stats-title">
+        <MapPin className="size-3.5 shrink-0" strokeWidth={2} />
+        Por provincia (Argentina)
+      </p>
+      <ul className="admin-preview-card-stats-list">
+        {visibleProvinces.map((entry) => (
+          <li key={entry.province} className="admin-preview-card-stats-row">
+            <span className="line-clamp-1">{entry.province}</span>
+            <span>{formatCount(entry.viewCount)}</span>
+          </li>
+        ))}
+      </ul>
+      {hiddenCount > 0 && (
+        <p className="admin-preview-card-stats-more">
+          +{hiddenCount} {hiddenCount === 1 ? "provincia más" : "provincias más"}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export function AdminPublicationList({
   items,
+  totalSiteViews,
   viewCountsByItem,
+  provincesByItem,
   isLoading,
+  isLoadingStats,
+  statsError,
   error,
   filterTab,
   deletingId,
@@ -62,6 +126,19 @@ export function AdminPublicationList({
           <Plus className="size-4" strokeWidth={2} />
           Agregar publicación
         </button>
+      </div>
+
+      <div className="admin-site-total">
+        <Globe className="size-4 shrink-0 text-azul-francia" strokeWidth={2} />
+        <span className="text-sm font-medium text-slate-deep">
+          Visitas totales del sitio
+        </span>
+        <span className="admin-site-total-value">
+          {isLoadingStats ? "..." : formatCount(totalSiteViews)}
+        </span>
+        {statsError && (
+          <span className="text-xs text-muted">({statsError})</span>
+        )}
       </div>
 
       <div
@@ -114,12 +191,10 @@ export function AdminPublicationList({
             const cover = item.media[0];
             const isDeleting = deletingId === item.id;
             const viewCount = viewCountsByItem[item.id] ?? 0;
+            const provinces = provincesByItem[item.id] ?? [];
 
             return (
-              <article
-                key={item.id}
-                className="admin-preview-card group"
-              >
+              <article key={item.id} className="admin-preview-card group">
                 <div className="admin-preview-card-media">
                   {cover ? (
                     cover.kind === "video" ? (
@@ -149,7 +224,7 @@ export function AdminPublicationList({
 
                   <span className="admin-preview-card-views">
                     <Eye className="size-3.5" strokeWidth={2} />
-                    {viewCount.toLocaleString("es-AR")}
+                    {formatCount(viewCount)}
                   </span>
                 </div>
 
@@ -164,6 +239,11 @@ export function AdminPublicationList({
                   <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-slate-deep/80">
                     {item.description}
                   </p>
+
+                  <PublicationProvinceStats
+                    provinces={provinces}
+                    viewCount={viewCount}
+                  />
                 </div>
 
                 <div className="admin-preview-card-actions">

@@ -121,6 +121,43 @@ as $$
   order by view_count desc, province asc;
 $$;
 
+-- Total de visitas del sitio (todas las publicaciones)
+create or replace function public.get_catalog_total_views()
+returns bigint
+language sql
+security definer
+set search_path = public
+as $$
+  select count(*)::bigint from public.catalog_views;
+$$;
+
+-- Provincias de visitantes para todas las publicaciones
+create or replace function public.get_all_catalog_item_view_provinces()
+returns table (
+  catalog_item_id uuid,
+  province text,
+  view_count bigint
+)
+language sql
+security definer
+set search_path = public
+as $$
+  select
+    catalog_item_id,
+    coalesce(nullif(trim(province), ''), 'Sin provincia') as province,
+    count(*)::bigint as view_count
+  from public.catalog_views
+  where country in ('AR', 'Argentina')
+  group by catalog_item_id, 2
+  order by catalog_item_id, view_count desc, province asc;
+$$;
+
+revoke all on function public.get_catalog_total_views() from public;
+revoke all on function public.get_all_catalog_item_view_provinces() from public;
+
+grant execute on function public.get_catalog_total_views() to authenticated;
+grant execute on function public.get_all_catalog_item_view_provinces() to authenticated;
+
 revoke all on function public.get_top_catalog_publications(int) from public;
 revoke all on function public.get_catalog_views_by_province() from public;
 revoke all on function public.get_catalog_view_counts() from public;

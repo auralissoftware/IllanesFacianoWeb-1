@@ -42,13 +42,10 @@ import {
   type AdminVehiculoFields,
 } from "../../types/adminCatalog";
 import { AdminPublicationList } from "./AdminPublicationList";
-import { AdminViewStats } from "./AdminViewStats";
 import { ImageDropzone } from "./ImageDropzone";
 import {
-  fetchCatalogItemViewProvinces,
   fetchCatalogViewStats,
   type CatalogViewStats,
-  type ProvinceViewStat,
 } from "../../lib/catalogViewStats";
 
 type FieldErrors = Record<string, string>;
@@ -146,8 +143,6 @@ export function AdminDashboard() {
   const [viewStats, setViewStats] = useState<CatalogViewStats | null>(null);
   const [isLoadingStats, setIsLoadingStats] = useState(true);
   const [statsError, setStatsError] = useState("");
-  const [itemProvinces, setItemProvinces] = useState<ProvinceViewStat[]>([]);
-  const [isLoadingItemProvinces, setIsLoadingItemProvinces] = useState(false);
 
   const [categoria, setCategoria] = useState<AdminCategoria>("propiedades");
   const [common, setCommon] = useState(initialCommonFields);
@@ -234,7 +229,6 @@ export function AdminDashboard() {
     setFieldErrors({});
     setFormSuccess("");
     setSubmitError("");
-    setItemProvinces([]);
   }
 
   function openCreateForm() {
@@ -268,16 +262,6 @@ export function AdminDashboard() {
       setFormMode("edit");
       setEditingId(id);
       setView("form");
-
-      setIsLoadingItemProvinces(true);
-      try {
-        const provinces = await fetchCatalogItemViewProvinces(id);
-        setItemProvinces(provinces);
-      } catch {
-        setItemProvinces([]);
-      } finally {
-        setIsLoadingItemProvinces(false);
-      }
     } catch (error) {
       setListError(
         error instanceof Error
@@ -455,18 +439,14 @@ export function AdminDashboard() {
                 </div>
               )}
 
-              <AdminViewStats
-                stats={viewStats}
-                isLoading={isLoadingStats}
-                error={statsError}
-              />
-
-              <div className="my-8 border-t border-slate-100" />
-
               <AdminPublicationList
                 items={items}
+                totalSiteViews={viewStats?.totalSiteViews ?? 0}
                 viewCountsByItem={viewStats?.viewCountsByItem ?? {}}
+                provincesByItem={viewStats?.provincesByItem ?? {}}
                 isLoading={isLoadingList}
+                isLoadingStats={isLoadingStats}
+                statsError={statsError}
                 error={listError}
                 filterTab={filterTab}
                 deletingId={deletingId}
@@ -514,37 +494,38 @@ export function AdminDashboard() {
                           "es-AR",
                         )}{" "}
                         <span className="text-base font-medium text-muted">
-                          visitas totales
+                          visitas
                         </span>
                       </p>
 
-                      {isLoadingItemProvinces ? (
-                        <p className="mt-3 text-sm text-muted">
-                          Cargando provincias...
-                        </p>
-                      ) : itemProvinces.length > 0 ? (
+                      {(viewStats?.provincesByItem[editingId] ?? []).length > 0 ? (
                         <div className="mt-4">
                           <p className="text-xs font-semibold tracking-wide text-muted uppercase">
-                            Visitantes por provincia (Argentina)
+                            Por provincia (Argentina)
                           </p>
                           <ul className="mt-2 space-y-1.5">
-                            {itemProvinces.map((entry) => (
-                              <li
-                                key={entry.province}
-                                className="flex items-center justify-between gap-3 text-sm"
-                              >
-                                <span className="text-slate-deep">{entry.province}</span>
-                                <span className="font-semibold text-azul-francia">
-                                  {entry.viewCount.toLocaleString("es-AR")}
-                                </span>
-                              </li>
-                            ))}
+                            {(viewStats?.provincesByItem[editingId] ?? []).map(
+                              (entry) => (
+                                <li
+                                  key={entry.province}
+                                  className="flex items-center justify-between gap-3 text-sm"
+                                >
+                                  <span className="text-slate-deep">{entry.province}</span>
+                                  <span className="font-semibold text-azul-francia">
+                                    {entry.viewCount.toLocaleString("es-AR")}
+                                  </span>
+                                </li>
+                              ),
+                            )}
                           </ul>
                         </div>
+                      ) : (viewStats?.viewCountsByItem[editingId] ?? 0) > 0 ? (
+                        <p className="mt-3 text-sm text-muted">
+                          Hay visitas registradas, pero todavía sin provincia detectada.
+                        </p>
                       ) : (
                         <p className="mt-3 text-sm text-muted">
-                          Todavía no hay visitas con provincia detectada para esta
-                          publicación.
+                          Todavía no hay visitas para esta publicación.
                         </p>
                       )}
                     </section>
