@@ -32,8 +32,12 @@ function AppRoutes() {
         <Route path="/admin/login" element={<AdminLoginPage />} />
         <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
       </Routes>
-      {!isAdminRoute && <WhatsAppFloatButton />}
-      {!isAdminRoute && <CookieBanner />}
+      {!isAdminRoute && (
+        <>
+          <WhatsAppFloatButton />
+          <CookieBanner key="public-site-cookie-banner" />
+        </>
+      )}
     </>
   );
 }

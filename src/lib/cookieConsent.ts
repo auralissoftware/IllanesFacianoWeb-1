@@ -19,3 +19,22 @@ export function getCookieConsent(): CookieConsent | null {
 export function hasAnalyticsConsent(): boolean {
   return getCookieConsent() === "accepted";
 }
+
+export function setCookieConsent(value: CookieConsent | null): boolean {
+  try {
+    if (value === null) {
+      localStorage.removeItem(COOKIE_CONSENT_KEY);
+    } else {
+      localStorage.setItem(COOKIE_CONSENT_KEY, value);
+    }
+
+    window.dispatchEvent(new Event("cookie-consent-updated"));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function needsCookieConsentPrompt(): boolean {
+  return getCookieConsent() === null;
+}

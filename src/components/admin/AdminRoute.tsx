@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Navigate, useLocation } from "react-router-dom";
 import { hasAdminSession } from "../../lib/adminAuth";
 
 type AdminRouteProps = {
@@ -7,15 +7,31 @@ type AdminRouteProps = {
 };
 
 export function AdminRoute({ children }: AdminRouteProps) {
+  const location = useLocation();
+  const initialCheckDone = useRef(false);
   const [ready, setReady] = useState(false);
   const [allowed, setAllowed] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
+
     hasAdminSession().then((session) => {
+      if (cancelled) {
+        return;
+      }
+
       setAllowed(session);
-      setReady(true);
+
+      if (!initialCheckDone.current) {
+        initialCheckDone.current = true;
+        setReady(true);
+      }
     });
-  }, []);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [location.key]);
 
   if (!ready) {
     return (
@@ -26,7 +42,7 @@ export function AdminRoute({ children }: AdminRouteProps) {
   }
 
   if (!allowed) {
-    return <Navigate to="/admin/login" replace />;
+    return <Navigate to="/admin/login" replace state={{ from: location.pathname }} />;
   }
 
   return children;

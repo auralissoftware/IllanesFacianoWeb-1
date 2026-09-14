@@ -130,7 +130,7 @@ export function AdminLogin() {
     }
 
     clearFailedAttempts();
-    navigate("/admin/dashboard", { replace: true });
+    navigate("/admin/dashboard");
   }
 
   async function handleResetSubmit(event: FormEvent<HTMLFormElement>) {

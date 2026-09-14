@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { CookiePreferencesPanel } from "../components/legal/CookiePreferencesPanel";
 import { LegalPageLayout, LegalSection } from "../components/legal/LegalPageLayout";
 import {
   LEGAL_BUSINESS_NAME,
@@ -101,7 +102,9 @@ export function CookiesPage() {
       </LegalSection>
 
       <LegalSection title="3. Consentimiento del usuario y revocación">
-        <p>
+        <CookiePreferencesPanel />
+
+        <p className="mt-6">
           Al ingresar por primera vez al sitio, se muestra un banner informativo
           mediante el cual el usuario puede <strong>aceptar</strong> o{" "}
           <strong>rechazar</strong> las cookies analíticas. La elección se

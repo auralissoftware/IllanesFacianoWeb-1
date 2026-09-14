@@ -6,6 +6,10 @@ create table if not exists public.catalog_views (
   catalog_item_id uuid not null references public.catalog_items(id) on delete cascade,
   province text,
   country text,
+  country_code text,
+  country_name text,
+  region text,
+  city text,
   viewed_at timestamptz not null default now()
 );
 
@@ -124,8 +128,10 @@ $$;
 -- Registro de visita (RPC, evita fallos de RLS en el cliente)
 create or replace function public.record_catalog_view(
   p_catalog_item_id uuid,
-  p_province text default null,
-  p_country text default null
+  p_country_code text default null,
+  p_country_name text default null,
+  p_region text default null,
+  p_city text default null
 )
 returns bigint
 language plpgsql
@@ -135,6 +141,7 @@ as $$
 declare
   v_published boolean;
   v_total bigint;
+  v_country text;
 begin
   select ci.published
   into v_published
@@ -145,11 +152,25 @@ begin
     raise exception 'Publicación no publicada o inexistente';
   end if;
 
-  insert into public.catalog_views (catalog_item_id, province, country)
+  v_country := coalesce(nullif(trim(p_country_code), ''), nullif(trim(p_country_name), ''));
+
+  insert into public.catalog_views (
+    catalog_item_id,
+    country,
+    country_code,
+    country_name,
+    province,
+    region,
+    city
+  )
   values (
     p_catalog_item_id,
-    nullif(trim(p_province), ''),
-    nullif(trim(p_country), '')
+    v_country,
+    nullif(trim(p_country_code), ''),
+    nullif(trim(p_country_name), ''),
+    nullif(trim(p_region), ''),
+    nullif(trim(p_region), ''),
+    nullif(trim(p_city), '')
   );
 
   select count(*)::bigint
@@ -161,8 +182,8 @@ begin
 end;
 $$;
 
-revoke all on function public.record_catalog_view(uuid, text, text) from public;
-grant execute on function public.record_catalog_view(uuid, text, text) to anon, authenticated;
+revoke all on function public.record_catalog_view(uuid, text, text, text, text) from public;
+grant execute on function public.record_catalog_view(uuid, text, text, text, text) to anon, authenticated;
 
 -- Total de visitas del sitio (todas las publicaciones)
 create or replace function public.get_catalog_total_views()

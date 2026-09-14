@@ -1,9 +1,11 @@
 import { hasAnalyticsConsent } from "./cookieConsent";
 import { supabase } from "./supabase";
 
-type VisitorRegion = {
-  province: string | null;
-  country: string | null;
+export type VisitorGeo = {
+  countryCode: string | null;
+  countryName: string | null;
+  region: string | null;
+  city: string | null;
 };
 
 const VIEW_SESSION_PREFIX = "catalog-view-";
@@ -13,7 +15,7 @@ function isDev(): boolean {
   return import.meta.env.DEV;
 }
 
-async function detectVisitorRegion(): Promise<VisitorRegion> {
+async function detectVisitorGeo(): Promise<VisitorGeo> {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 3500);
@@ -25,21 +27,34 @@ async function detectVisitorRegion(): Promise<VisitorRegion> {
     clearTimeout(timeout);
 
     if (!response.ok) {
-      return { province: null, country: null };
+      return {
+        countryCode: null,
+        countryName: null,
+        region: null,
+        city: null,
+      };
     }
 
     const data = (await response.json()) as {
-      region?: string;
       country_code?: string;
       country_name?: string;
+      region?: string;
+      city?: string;
     };
 
     return {
-      province: data.region?.trim() || null,
-      country: data.country_code?.trim() || data.country_name?.trim() || null,
+      countryCode: data.country_code?.trim().toUpperCase() || null,
+      countryName: data.country_name?.trim() || null,
+      region: data.region?.trim() || null,
+      city: data.city?.trim() || null,
     };
   } catch {
-    return { province: null, country: null };
+    return {
+      countryCode: null,
+      countryName: null,
+      region: null,
+      city: null,
+    };
   }
 }
 
@@ -71,17 +86,22 @@ function isMissingRpcError(message: string): boolean {
 
 async function insertCatalogViewDirect(
   itemId: string,
-  province: string | null,
-  country: string | null,
+  geo: VisitorGeo,
 ): Promise<{ ok: true; total: number | null } | { ok: false; message: string }> {
   if (!supabase) {
     return { ok: false, message: "Supabase no configurado" };
   }
 
+  const legacyCountry = geo.countryCode ?? geo.countryName;
+
   const { error } = await supabase.from("catalog_views").insert({
     catalog_item_id: itemId,
-    province,
-    country,
+    country: legacyCountry,
+    country_code: geo.countryCode,
+    country_name: geo.countryName,
+    province: geo.region,
+    region: geo.region,
+    city: geo.city,
   });
 
   if (error) {
@@ -93,8 +113,7 @@ async function insertCatalogViewDirect(
 
 async function insertCatalogViewViaRpc(
   itemId: string,
-  province: string | null,
-  country: string | null,
+  geo: VisitorGeo,
 ): Promise<{ ok: true; total: number | null } | { ok: false; message: string }> {
   if (!supabase) {
     return { ok: false, message: "Supabase no configurado" };
@@ -102,13 +121,15 @@ async function insertCatalogViewViaRpc(
 
   const { data, error } = await supabase.rpc("record_catalog_view", {
     p_catalog_item_id: itemId,
-    p_province: province,
-    p_country: country,
+    p_country_code: geo.countryCode,
+    p_country_name: geo.countryName,
+    p_region: geo.region,
+    p_city: geo.city,
   });
 
   if (error) {
     if (isMissingRpcError(error.message)) {
-      return insertCatalogViewDirect(itemId, province, country);
+      return insertCatalogViewDirect(itemId, geo);
     }
 
     return { ok: false, message: error.message };
@@ -141,8 +162,8 @@ export async function trackCatalogView(itemId: string): Promise<void> {
   inFlightItemIds.add(itemId);
 
   try {
-    const { province, country } = await detectVisitorRegion();
-    const result = await insertCatalogViewViaRpc(itemId, province, country);
+    const geo = await detectVisitorGeo();
+    const result = await insertCatalogViewViaRpc(itemId, geo);
 
     if (!result.ok) {
       if (isDev()) {
@@ -154,10 +175,11 @@ export async function trackCatalogView(itemId: string): Promise<void> {
     markViewRecordedThisSession(itemId);
 
     if (isDev()) {
-      console.info(
-        "[trackCatalogView] Visita registrada",
-        { itemId, province, country, totalForItem: result.total },
-      );
+      console.info("[trackCatalogView] Visita registrada", {
+        itemId,
+        geo,
+        totalForItem: result.total,
+      });
     }
   } finally {
     inFlightItemIds.delete(itemId);

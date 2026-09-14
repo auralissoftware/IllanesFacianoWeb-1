@@ -1,4 +1,11 @@
-import { FormEvent, useCallback, useEffect, useState, type ReactNode } from "react";
+import {
+  FormEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -6,7 +13,13 @@ import {
   LayoutDashboard,
   LogOut,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  adminDashboardPath,
+  buildAdminDashboardSearch,
+  parseAdminDashboardSearch,
+  type AdminDashboardFilterTab,
+} from "../../lib/adminDashboardUrl";
 import { adminLogout, isJwtSessionError, mapSupabaseSessionError } from "../../lib/adminAuth";
 import {
   fetchAdminCatalogItemForEdit,
@@ -49,9 +62,7 @@ import {
 } from "../../lib/catalogViewStats";
 
 type FieldErrors = Record<string, string>;
-type DashboardView = "list" | "form";
-type FormMode = "create" | "edit";
-type FilterTab = AdminCategoria | "all";
+type FilterTab = AdminDashboardFilterTab;
 
 function validateForm(
   categoria: AdminCategoria,
@@ -130,10 +141,12 @@ function revokeBlobUrls(images: AdminImageFile[]) {
 
 export function AdminDashboard() {
   const navigate = useNavigate();
-  const [view, setView] = useState<DashboardView>("list");
-  const [formMode, setFormMode] = useState<FormMode>("create");
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [filterTab, setFilterTab] = useState<FilterTab>("all");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { filtro: filterTab, accion, editId: editingId } =
+    parseAdminDashboardSearch(searchParams);
+  const view = accion ? "form" : "list";
+  const formMode = accion === "editar" ? "edit" : "create";
+  const loadedEditIdRef = useRef<string | null>(null);
   const [items, setItems] = useState<CatalogListing[]>([]);
   const [isLoadingList, setIsLoadingList] = useState(true);
   const [listError, setListError] = useState("");
@@ -218,6 +231,92 @@ export function AdminDashboard() {
     loadStats();
   }, [loadItems, loadStats]);
 
+  const loadItemIntoForm = useCallback(
+    async (id: string) => {
+      setIsLoadingForm(true);
+      setSubmitError("");
+      setFormSuccess("");
+
+      try {
+        const item = await fetchAdminCatalogItemForEdit(id);
+
+        if (!item) {
+          setListError("No encontramos esa publicación.");
+          setSearchParams(
+            (prev) => {
+              const next = new URLSearchParams(prev);
+              next.delete("accion");
+              next.delete("id");
+              return next;
+            },
+            { replace: true },
+          );
+          return;
+        }
+
+        setImages((current) => {
+          revokeBlobUrls(current);
+          return item.media;
+        });
+        setCategoria(item.categoria);
+        setCommon(item.common);
+        setPropiedad(item.propiedad);
+        setVehiculo(item.vehiculo);
+        setRemate(item.remate);
+        setFieldErrors({});
+        loadedEditIdRef.current = id;
+      } catch (error) {
+        setListError(
+          error instanceof Error
+            ? error.message
+            : "No pudimos cargar la publicación para editar.",
+        );
+        setSearchParams(
+          (prev) => {
+            const next = new URLSearchParams(prev);
+            next.delete("accion");
+            next.delete("id");
+            return next;
+          },
+          { replace: true },
+        );
+      } finally {
+        setIsLoadingForm(false);
+      }
+    },
+    [setSearchParams],
+  );
+
+  useEffect(() => {
+    if (accion === "editar" && editingId) {
+      if (loadedEditIdRef.current !== editingId) {
+        void loadItemIntoForm(editingId);
+      }
+      return;
+    }
+
+    loadedEditIdRef.current = null;
+
+    if (accion === "nueva") {
+      resetFormState();
+    }
+  }, [accion, editingId, loadItemIntoForm]);
+
+  function changeFilterTab(tab: FilterTab) {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (tab === "all") {
+          next.delete("filtro");
+        } else {
+          next.set("filtro", tab);
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  }
+
   function resetFormState() {
     revokeBlobUrls(images);
     setCategoria("propiedades");
@@ -233,58 +332,67 @@ export function AdminDashboard() {
 
   function openCreateForm() {
     resetFormState();
-    setFormMode("create");
-    setEditingId(null);
-    setView("form");
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("accion", "nueva");
+        next.delete("id");
+        return next;
+      },
+      { replace: false },
+    );
   }
 
-  async function openEditForm(id: string) {
-    setIsLoadingForm(true);
-    setSubmitError("");
-    setFormSuccess("");
-
-    try {
-      const item = await fetchAdminCatalogItemForEdit(id);
-
-      if (!item) {
-        setListError("No encontramos esa publicación.");
-        return;
-      }
-
-      revokeBlobUrls(images);
-      setCategoria(item.categoria);
-      setCommon(item.common);
-      setPropiedad(item.propiedad);
-      setVehiculo(item.vehiculo);
-      setRemate(item.remate);
-      setImages(item.media);
-      setFieldErrors({});
-      setFormMode("edit");
-      setEditingId(id);
-      setView("form");
-    } catch (error) {
-      setListError(
-        error instanceof Error
-          ? error.message
-          : "No pudimos cargar la publicación para editar.",
-      );
-    } finally {
-      setIsLoadingForm(false);
-    }
+  function openEditForm(id: string) {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("accion", "editar");
+        next.set("id", id);
+        return next;
+      },
+      { replace: false },
+    );
   }
 
-  function backToList(message?: string) {
+  function exitFormToList(options?: { message?: string; replaceHistory?: boolean }) {
     resetFormState();
-    setView("list");
-    setFormMode("create");
-    setEditingId(null);
 
-    if (message) {
-      setListSuccess(message);
+    if (options?.message) {
+      setListSuccess(options.message);
     }
+
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete("accion");
+        next.delete("id");
+        return next;
+      },
+      { replace: options?.replaceHistory ?? false },
+    );
 
     loadItems();
     loadStats();
+  }
+
+  function handleBackToList() {
+    if (!accion) {
+      navigate(
+        adminDashboardPath(buildAdminDashboardSearch({ filtro: filterTab })),
+        { replace: true },
+      );
+      return;
+    }
+
+    const historyIdx = window.history.state?.idx;
+
+    if (typeof historyIdx === "number" && historyIdx > 0) {
+      navigate(-1);
+      return;
+    }
+
+    exitFormToList({ replaceHistory: true });
   }
 
   async function handleDelete(id: string) {
@@ -384,11 +492,13 @@ export function AdminDashboard() {
       return;
     }
 
-    backToList(
-      formMode === "edit"
-        ? "Publicación actualizada correctamente."
-        : "Activo publicado correctamente.",
-    );
+    exitFormToList({
+      message:
+        formMode === "edit"
+          ? "Publicación actualizada correctamente."
+          : "Activo publicado correctamente.",
+      replaceHistory: true,
+    });
   }
 
   return (
@@ -443,14 +553,14 @@ export function AdminDashboard() {
                 items={items}
                 totalSiteViews={viewStats?.totalSiteViews ?? 0}
                 viewCountsByItem={viewStats?.viewCountsByItem ?? {}}
-                provincesByItem={viewStats?.provincesByItem ?? {}}
+                geoByItem={viewStats?.geoByItem ?? {}}
                 isLoading={isLoadingList}
                 isLoadingStats={isLoadingStats}
                 statsError={statsError}
                 error={listError}
                 filterTab={filterTab}
                 deletingId={deletingId}
-                onFilterChange={setFilterTab}
+                onFilterChange={changeFilterTab}
                 onAdd={openCreateForm}
                 onEdit={openEditForm}
                 onDelete={handleDelete}
@@ -460,7 +570,7 @@ export function AdminDashboard() {
             <>
               <button
                 type="button"
-                onClick={() => backToList()}
+                onClick={handleBackToList}
                 className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-azul-francia transition hover:text-navy"
               >
                 <ArrowLeft className="size-4" strokeWidth={2} />
@@ -498,19 +608,24 @@ export function AdminDashboard() {
                         </span>
                       </p>
 
-                      {(viewStats?.provincesByItem[editingId] ?? []).length > 0 ? (
+                      {(viewStats?.geoByItem[editingId] ?? []).length > 0 ? (
                         <div className="mt-4">
                           <p className="text-xs font-semibold tracking-wide text-muted uppercase">
-                            Por provincia (Argentina)
+                            Origen geográfico
                           </p>
                           <ul className="mt-2 space-y-1.5">
-                            {(viewStats?.provincesByItem[editingId] ?? []).map(
+                            {(viewStats?.geoByItem[editingId] ?? []).map(
                               (entry) => (
                                 <li
-                                  key={entry.province}
+                                  key={`${entry.countryCode}-${entry.region}`}
                                   className="flex items-center justify-between gap-3 text-sm"
                                 >
-                                  <span className="text-slate-deep">{entry.province}</span>
+                                  <span className="text-slate-deep">
+                                    {entry.countryName}
+                                    {entry.region !== "Sin región"
+                                      ? ` · ${entry.region}`
+                                      : ""}
+                                  </span>
                                   <span className="font-semibold text-azul-francia">
                                     {entry.viewCount.toLocaleString("es-AR")}
                                   </span>
@@ -521,7 +636,7 @@ export function AdminDashboard() {
                         </div>
                       ) : (viewStats?.viewCountsByItem[editingId] ?? 0) > 0 ? (
                         <p className="mt-3 text-sm text-muted">
-                          Hay visitas registradas, pero todavía sin provincia detectada.
+                          Hay visitas registradas, pero todavía sin ubicación detectada.
                         </p>
                       ) : (
                         <p className="mt-3 text-sm text-muted">
@@ -1071,7 +1186,7 @@ export function AdminDashboard() {
 
                       <button
                         type="button"
-                        onClick={() => backToList()}
+                        onClick={handleBackToList}
                         disabled={isSaving}
                         className="admin-dashboard-logout w-full justify-center sm:w-auto"
                       >

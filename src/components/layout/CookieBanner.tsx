@@ -1,24 +1,29 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import {
-  COOKIE_CONSENT_KEY,
   getCookieConsent,
+  needsCookieConsentPrompt,
+  setCookieConsent,
   type CookieConsent,
 } from "../../lib/cookieConsent";
 
-function storeConsent(value: CookieConsent) {
-  try {
-    localStorage.setItem(COOKIE_CONSENT_KEY, value);
-  } catch {
-    // noop
-  }
-}
-
 export function CookieBanner() {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(() => needsCookieConsentPrompt());
 
   useEffect(() => {
-    setVisible(getCookieConsent() === null);
+    function syncVisibility() {
+      setVisible(needsCookieConsentPrompt());
+    }
+
+    syncVisibility();
+    window.addEventListener("cookie-consent-updated", syncVisibility);
+    window.addEventListener("storage", syncVisibility);
+
+    return () => {
+      window.removeEventListener("cookie-consent-updated", syncVisibility);
+      window.removeEventListener("storage", syncVisibility);
+    };
   }, []);
 
   if (!visible) {
@@ -26,12 +31,11 @@ export function CookieBanner() {
   }
 
   function choose(value: CookieConsent) {
-    storeConsent(value);
-    setVisible(false);
-    window.dispatchEvent(new Event("cookie-consent-updated"));
+    setCookieConsent(value);
+    setVisible(getCookieConsent() === null);
   }
 
-  return (
+  const banner = (
     <div
       className="cookie-banner"
       role="dialog"
@@ -65,4 +69,10 @@ export function CookieBanner() {
       </div>
     </div>
   );
+
+  if (typeof document === "undefined") {
+    return banner;
+  }
+
+  return createPortal(banner, document.body);
 }

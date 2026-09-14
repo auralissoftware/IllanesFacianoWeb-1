@@ -1,13 +1,16 @@
+import { useState } from "react";
 import { ExternalLink, Eye, Globe, MapPin, Pencil, Plus, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { CatalogListing } from "../../lib/catalogRepository";
 import { buildCatalogDetailPath } from "../../lib/catalog";
 import { getSectionLabel } from "../../lib/catalogDisplay";
-import type { ProvinceViewStat } from "../../lib/catalogViewStats";
+import type { GeoViewStat } from "../../lib/catalogViewStats";
+import { countryCodeToFlag, formatCountryLabel } from "../../lib/geoDisplay";
 import {
   adminCategorias,
   type AdminCategoria,
 } from "../../types/adminCatalog";
+import { AdminPublicationViewsModal } from "./AdminPublicationViewsModal";
 
 type FilterTab = AdminCategoria | "all";
 
@@ -15,7 +18,7 @@ type AdminPublicationListProps = {
   items: CatalogListing[];
   totalSiteViews: number;
   viewCountsByItem: Record<string, number>;
-  provincesByItem: Record<string, ProvinceViewStat[]>;
+  geoByItem: Record<string, GeoViewStat[]>;
   isLoading: boolean;
   isLoadingStats: boolean;
   statsError: string;
@@ -28,23 +31,31 @@ type AdminPublicationListProps = {
   onDelete: (id: string) => void;
 };
 
+type ViewsModalState = {
+  itemId: string;
+  title: string;
+  total: number;
+};
+
 const filterTabs: { id: FilterTab; label: string }[] = [
   { id: "all", label: "Todas" },
   ...adminCategorias.map(({ id, label }) => ({ id, label })),
 ];
 
-const MAX_PROVINCES_SHOWN = 4;
+const MAX_GEO_SHOWN = 3;
 
 function formatCount(value: number): string {
   return value.toLocaleString("es-AR");
 }
 
-function PublicationProvinceStats({
-  provinces,
+function PublicationGeoPreview({
+  geo,
   viewCount,
+  onOpenDetails,
 }: {
-  provinces: ProvinceViewStat[];
+  geo: GeoViewStat[];
   viewCount: number;
+  onOpenDetails: () => void;
 }) {
   if (viewCount === 0) {
     return (
@@ -54,36 +65,47 @@ function PublicationProvinceStats({
     );
   }
 
-  if (provinces.length === 0) {
-    return (
-      <p className="mt-3 text-xs text-muted">
-        {formatCount(viewCount)} visitas · sin provincia detectada todavía
-      </p>
-    );
-  }
-
-  const visibleProvinces = provinces.slice(0, MAX_PROVINCES_SHOWN);
-  const hiddenCount = provinces.length - visibleProvinces.length;
+  const visibleGeo = geo.slice(0, MAX_GEO_SHOWN);
+  const hiddenCount = geo.length - visibleGeo.length;
 
   return (
     <div className="admin-preview-card-stats">
       <p className="admin-preview-card-stats-title">
         <MapPin className="size-3.5 shrink-0" strokeWidth={2} />
-        Por provincia (Argentina)
+        Origen de visitas
       </p>
-      <ul className="admin-preview-card-stats-list">
-        {visibleProvinces.map((entry) => (
-          <li key={entry.province} className="admin-preview-card-stats-row">
-            <span className="line-clamp-1">{entry.province}</span>
-            <span>{formatCount(entry.viewCount)}</span>
-          </li>
-        ))}
-      </ul>
+
+      {visibleGeo.length === 0 ? (
+        <p className="text-xs text-muted">
+          {formatCount(viewCount)} visitas · sin ubicación detectada
+        </p>
+      ) : (
+        <ul className="admin-preview-card-stats-list">
+          {visibleGeo.map((entry) => (
+            <li
+              key={`${entry.countryCode}-${entry.region}-${entry.viewCount}`}
+              className="admin-preview-card-stats-row"
+            >
+              <span className="line-clamp-1">
+                {countryCodeToFlag(entry.countryCode)}{" "}
+                {formatCountryLabel(entry.countryCode, entry.countryName)}
+                {entry.region !== "Sin región" ? ` · ${entry.region}` : ""}
+              </span>
+              <span>{formatCount(entry.viewCount)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
       {hiddenCount > 0 && (
         <p className="admin-preview-card-stats-more">
-          +{hiddenCount} {hiddenCount === 1 ? "provincia más" : "provincias más"}
+          +{hiddenCount} {hiddenCount === 1 ? "ubicación más" : "ubicaciones más"}
         </p>
       )}
+
+      <button type="button" onClick={onOpenDetails} className="admin-preview-card-stats-link">
+        Ver detalle completo
+      </button>
     </div>
   );
 }
@@ -92,7 +114,7 @@ export function AdminPublicationList({
   items,
   totalSiteViews,
   viewCountsByItem,
-  provincesByItem,
+  geoByItem,
   isLoading,
   isLoadingStats,
   statsError,
@@ -104,13 +126,32 @@ export function AdminPublicationList({
   onEdit,
   onDelete,
 }: AdminPublicationListProps) {
+  const [viewsModal, setViewsModal] = useState<ViewsModalState | null>(null);
+
   const filteredItems =
     filterTab === "all"
       ? items
       : items.filter((item) => item.section === filterTab);
 
+  function openViewsModal(item: CatalogListing, viewCount: number) {
+    setViewsModal({
+      itemId: item.id,
+      title: item.title,
+      total: viewCount,
+    });
+  }
+
   return (
     <div className="space-y-6">
+      {viewsModal && (
+        <AdminPublicationViewsModal
+          itemId={viewsModal.itemId}
+          itemTitle={viewsModal.title}
+          fallbackTotal={viewsModal.total}
+          onClose={() => setViewsModal(null)}
+        />
+      )}
+
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="text-2xl font-semibold tracking-tight text-slate-deep">
@@ -191,7 +232,7 @@ export function AdminPublicationList({
             const cover = item.media[0];
             const isDeleting = deletingId === item.id;
             const viewCount = viewCountsByItem[item.id] ?? 0;
-            const provinces = provincesByItem[item.id] ?? [];
+            const geo = geoByItem[item.id] ?? [];
 
             return (
               <article key={item.id} className="admin-preview-card group">
@@ -222,10 +263,16 @@ export function AdminPublicationList({
                     {getSectionLabel(item.section)}
                   </span>
 
-                  <span className="admin-preview-card-views">
+                  <button
+                    type="button"
+                    className="admin-preview-card-views"
+                    onClick={() => openViewsModal(item, viewCount)}
+                    aria-label={`Ver visualizaciones de ${item.title}`}
+                    title="Ver detalle de visualizaciones"
+                  >
                     <Eye className="size-3.5" strokeWidth={2} />
                     {formatCount(viewCount)}
-                  </span>
+                  </button>
                 </div>
 
                 <div className="admin-preview-card-body">
@@ -240,9 +287,10 @@ export function AdminPublicationList({
                     {item.description}
                   </p>
 
-                  <PublicationProvinceStats
-                    provinces={provinces}
+                  <PublicationGeoPreview
+                    geo={geo}
                     viewCount={viewCount}
+                    onOpenDetails={() => openViewsModal(item, viewCount)}
                   />
                 </div>
 
