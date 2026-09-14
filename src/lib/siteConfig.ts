@@ -1,6 +1,10 @@
+const DEFAULT_SITE_ORIGIN = "https://www.illanesfaciano.com";
+
 export const SITE_URL =
-  import.meta.env.VITE_SITE_URL?.replace(/\/$/, "") ??
-  "https://illanesfaciano.com.ar";
+  import.meta.env.VITE_SITE_URL?.replace(/\/$/, "") ?? DEFAULT_SITE_ORIGIN;
+
+/** Base canónica para metadatos (og, JSON-LD, sitemap en build). */
+export const METADATA_BASE = SITE_URL;
 
 export const SITE_NAME = "Illanes Faciano";
 

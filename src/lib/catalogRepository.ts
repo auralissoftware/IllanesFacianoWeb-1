@@ -26,6 +26,7 @@ import type {
   SearchTab,
 } from "./searchTypes";
 import { isVideoFile } from "./mediaUpload";
+import { ensureHttpsUrl } from "./ensureHttpsUrl";
 import { slugifyTitle } from "./catalogSlug";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -86,7 +87,7 @@ function mapRowToListing(row: DbCatalogRow): CatalogListing {
   const media = (row.catalog_media ?? [])
     .sort((a, b) => a.sort_order - b.sort_order)
     .map((item) => ({
-      url: item.public_url,
+      url: ensureHttpsUrl(item.public_url),
       kind: item.kind,
     }));
 
@@ -260,7 +261,7 @@ function mapRowToAdminEditItem(row: DbCatalogRow): AdminEditCatalogItem {
     .sort((a, b) => a.sort_order - b.sort_order)
     .map((item) => ({
       id: item.id,
-      previewUrl: item.public_url,
+      previewUrl: ensureHttpsUrl(item.public_url),
       kind: item.kind,
       storagePath: item.storage_path,
     }));
@@ -311,7 +312,7 @@ async function uploadMediaFiles(
     const { error: mediaError } = await client.from("catalog_media").insert({
       catalog_item_id: itemId,
       storage_path: storagePath,
-      public_url: publicUrlData.publicUrl,
+      public_url: ensureHttpsUrl(publicUrlData.publicUrl),
       kind: isVideoFile(file) ? "video" : "image",
       sort_order: startOrder + index,
     });

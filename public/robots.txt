@@ -3,4 +3,4 @@ Allow: /
 
 Disallow: /admin/
 
-Sitemap: https://illanesfaciano.com.ar/sitemap.xml
+Sitemap: https://www.illanesfaciano.com/sitemap.xml
