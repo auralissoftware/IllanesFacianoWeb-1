@@ -1,12 +1,13 @@
+import { Link } from "react-router-dom";
 import { Reveal } from "../ui/Reveal";
 
-export function AboutSection() {
-  const roles = [
-    "Martillero Público",
-    "Perito Tasador",
-    "Corredor Público Nacional",
-  ] as const;
+const roles = [
+  { label: "Martillero Público", to: "/remates" },
+  { label: "Perito Tasador", to: "/tasaciones" },
+  { label: "Corredor Público Nacional", to: "/catalogo" },
+] as const;
 
+export function AboutSection() {
   return (
     <section
       id="servicios"
@@ -22,7 +23,7 @@ export function AboutSection() {
           <span className="section-badge">Respaldo profesional</span>
 
           <h2 className="text-balance mt-5 text-2xl leading-[1.12] font-semibold tracking-tight text-slate-deep sm:text-3xl lg:text-[2.65rem]">
-            El respaldo profesional detrás de cada operación
+            Martillero Público, Perito Tasador y Corredor Inmobiliario en Tucumán
           </h2>
         </Reveal>
 
@@ -39,7 +40,7 @@ export function AboutSection() {
             />
             <img
               src="/images/alberto-illanes.png"
-              alt="Alberto Illanes Faciano en su puesto de martillero"
+              alt="Alberto Illanes Faciano - Martillero Público y Perito Tasador en San Miguel de Tucumán"
               className="relative aspect-[4/5] w-32 rounded-[1.15rem] object-cover object-top shadow-[0_20px_50px_rgba(27,38,59,0.15)] ring-1 ring-slate-200/80 sm:w-44 sm:rounded-[1.25rem] md:w-52"
             />
           </Reveal>
@@ -50,23 +51,27 @@ export function AboutSection() {
             variant="up"
           >
             <p className="text-left text-sm leading-[1.75] text-muted sm:text-base lg:text-lg">
-              Más que publicaciones o simples operaciones, cada negocio necesita
-              confianza, criterio y respaldo profesional. Alberto Illanes Faciano
-              combina experiencia en el mercado inmobiliario, remates y
-              tasaciones para ofrecer operaciones seguras, transparentes y
-              respaldadas profesionalmente.
+              Alberto Illanes Faciano brinda servicios integrales como Martillero
+              Público, Perito Tasador Judicial y Corredor Inmobiliario en San Miguel
+              de Tucumán y alrededores. Especialista en tasaciones de inmuebles,
+              terrenos y campos, peritajes oficiales y operaciones inmobiliarias
+              transparentes.
             </p>
 
             <ul className="mt-6 flex flex-wrap gap-2 sm:mt-8 sm:gap-3">
-              {roles.map((role, index) => (
+              {roles.map(({ label, to }, index) => (
                 <Reveal
-                  key={role}
+                  key={label}
                   as="li"
                   delay={220 + index * 90}
                   variant="fade"
-                  className="rounded-full border border-celeste/35 bg-celeste/10 px-3 py-2 text-xs font-medium text-azul-francia sm:px-4 sm:py-2.5 sm:text-sm"
                 >
-                  {role}
+                  <Link
+                    to={to}
+                    className="inline-flex rounded-full border border-celeste/35 bg-celeste/10 px-3 py-2 text-xs font-medium text-azul-francia transition hover:border-azul-francia/35 hover:bg-celeste/20 sm:px-4 sm:py-2.5 sm:text-sm"
+                  >
+                    {label}
+                  </Link>
                 </Reveal>
               ))}
             </ul>

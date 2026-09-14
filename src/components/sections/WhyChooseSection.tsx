@@ -1,18 +1,38 @@
 import { BarChart3, Handshake, Scale } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Reveal } from "../ui/Reveal";
+
+const featureLinkClassName =
+  "font-medium text-celeste underline-offset-2 transition hover:text-white hover:underline";
 
 const features = [
   {
     icon: Scale,
     title: "Seguridad Jurídica",
-    description:
-      "Operaciones inmobiliarias y subastas respaldadas legalmente bajo matrícula oficial.",
+    description: (
+      <>
+        Operaciones inmobiliarias y subastas respaldadas legalmente bajo matrícula
+        oficial. Consultá{" "}
+        <Link to="/remates" className={featureLinkClassName}>
+          remates y subastas en Tucumán
+        </Link>
+        .
+      </>
+    ),
   },
   {
     icon: BarChart3,
     title: "Tasaciones Oficiales",
-    description:
-      "Valores de mercado precisos y peritajes reales para resguardar tu patrimonio.",
+    description: (
+      <>
+        Valores de mercado precisos y peritajes reales en San Miguel de Tucumán y
+        alrededores para resguardar tu patrimonio.{" "}
+        <Link to="/tasaciones" className={featureLinkClassName}>
+          Tasaciones inmobiliarias
+        </Link>
+        .
+      </>
+    ),
   },
   {
     icon: Handshake,
