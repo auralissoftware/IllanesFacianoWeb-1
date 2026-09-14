@@ -1,8 +1,48 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "illanesfaciano.com.ar" }],
+      "destination": "https://www.illanesfaciano.com/:path*",
+      "statusCode": 301
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.illanesfaciano.com.ar" }],
+      "destination": "https://www.illanesfaciano.com/:path*",
+      "statusCode": 301
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "illanesfaciano.com" }],
+      "destination": "https://www.illanesfaciano.com/:path*",
+      "statusCode": 301
+    }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",
       "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        }
+      ]
     }
   ]
 }
