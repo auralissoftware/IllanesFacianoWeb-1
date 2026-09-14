@@ -16,6 +16,8 @@ type HeroSectionProps = {
   onTabChange?: (tab: SearchTab) => void;
   showExploreAll?: boolean;
   backLink?: HeroBackLink;
+  headline?: string;
+  subheadline?: string;
 };
 
 export function HeroSection({
@@ -25,6 +27,8 @@ export function HeroSection({
   onTabChange,
   showExploreAll = true,
   backLink,
+  headline = "Tu próxima inversión, al alcance de un clic",
+  subheadline = "Tu próximo hogar o tu mejor oportunidad de negocio. Catálogo inmobiliario y remates conducidos por el martillero Alberto Illanes Faciano.",
 }: HeroSectionProps = {}) {
   return (
     <section
@@ -62,13 +66,11 @@ export function HeroSection({
 
       <div className="hero-content relative z-20 mx-auto max-w-4xl px-4 pb-6 pt-40 text-center sm:px-6 sm:pb-8 sm:pt-48 lg:px-10 lg:pb-10 lg:pt-60 xl:pt-64">
         <h1 className="hero-animate-in text-balance mx-auto max-w-3xl text-3xl leading-[1.08] font-semibold tracking-tight text-white drop-shadow-sm sm:text-4xl md:text-5xl lg:text-[3.25rem]">
-          Tu próxima inversión, al alcance de un clic
+          {headline}
         </h1>
 
         <p className="hero-animate-in hero-delay-1 mx-auto mt-5 max-w-2xl text-base leading-relaxed text-white/90 drop-shadow-sm sm:mt-6 sm:text-lg">
-          Tu próximo hogar o tu mejor oportunidad de negocio. Catálogo
-          inmobiliario y remates conducidos por el martillero Alberto
-          Illanes Faciano.
+          {subheadline}
         </p>
 
         <div className="hero-animate-in hero-delay-2">

@@ -121,6 +121,49 @@ as $$
   order by 2 desc, 1 asc;
 $$;
 
+-- Registro de visita (RPC, evita fallos de RLS en el cliente)
+create or replace function public.record_catalog_view(
+  p_catalog_item_id uuid,
+  p_province text default null,
+  p_country text default null
+)
+returns bigint
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_published boolean;
+  v_total bigint;
+begin
+  select ci.published
+  into v_published
+  from public.catalog_items ci
+  where ci.id = p_catalog_item_id;
+
+  if v_published is distinct from true then
+    raise exception 'Publicación no publicada o inexistente';
+  end if;
+
+  insert into public.catalog_views (catalog_item_id, province, country)
+  values (
+    p_catalog_item_id,
+    nullif(trim(p_province), ''),
+    nullif(trim(p_country), '')
+  );
+
+  select count(*)::bigint
+  into v_total
+  from public.catalog_views
+  where catalog_item_id = p_catalog_item_id;
+
+  return v_total;
+end;
+$$;
+
+revoke all on function public.record_catalog_view(uuid, text, text) from public;
+grant execute on function public.record_catalog_view(uuid, text, text) to anon, authenticated;
+
 -- Total de visitas del sitio (todas las publicaciones)
 create or replace function public.get_catalog_total_views()
 returns bigint

@@ -27,6 +27,8 @@ export function HomePage() {
         <HeroSection
           onExploreAll={handleExploreAll}
           onSearch={handleSearch}
+          headline="Tasaciones de Inmuebles, Peritajes y Operaciones Inmobiliarias en Tucumán"
+          subheadline="Perito Tasador Judicial y Martillero Público. Catálogo inmobiliario y remates en San Miguel de Tucumán con Alberto Illanes Faciano."
         />
         <AboutSection />
         <WhyChooseSection />

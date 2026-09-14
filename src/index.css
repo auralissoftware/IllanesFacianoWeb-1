@@ -679,6 +679,35 @@
     @apply rounded-2xl border border-dashed border-slate-200/90 bg-off-white/50 px-6 py-14 text-center;
   }
 
+  .cookie-banner {
+    @apply fixed right-4 left-4 z-[180] mx-auto flex max-w-3xl flex-col gap-4 rounded-2xl border border-slate-200/90 bg-white/95 p-4 shadow-[0_20px_60px_rgba(27,38,59,0.18)] backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between sm:p-5;
+    bottom: max(5.25rem, calc(4.5rem + env(safe-area-inset-bottom, 0px)));
+  }
+
+  .cookie-banner-text {
+    @apply text-sm leading-relaxed text-slate-deep/90;
+  }
+
+  .cookie-banner-link {
+    @apply font-medium text-azul-francia underline-offset-2 hover:text-navy hover:underline;
+  }
+
+  .cookie-banner-actions {
+    @apply flex shrink-0 flex-wrap gap-2;
+  }
+
+  .cookie-banner-btn {
+    @apply inline-flex min-h-10 items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold transition duration-200;
+  }
+
+  .cookie-banner-btn-secondary {
+    @apply border border-slate-200/90 bg-off-white/70 text-slate-deep hover:border-slate-300 hover:bg-off-white;
+  }
+
+  .cookie-banner-btn-primary {
+    @apply bg-azul-francia text-white shadow-[0_4px_16px_rgba(0,119,182,0.25)] hover:bg-azul-francia-hover;
+  }
+
   .footer-shell {
     padding-bottom: max(0.75rem, calc(3.75rem + env(safe-area-inset-bottom, 0px)));
   }

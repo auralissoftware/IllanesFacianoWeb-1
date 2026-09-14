@@ -1,5 +1,9 @@
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { CookieBanner } from "./components/layout/CookieBanner";
 import { WhatsAppFloatButton } from "./components/layout/WhatsAppFloatButton";
+import { CookiesPage } from "./pages/CookiesPage";
+import { RematesPage } from "./pages/RematesPage";
+import { TasacionesPage } from "./pages/TasacionesPage";
 import { AdminDashboardPage } from "./pages/AdminDashboardPage";
 import { AdminLoginPage } from "./pages/AdminLoginPage";
 import { CatalogDetailPage } from "./pages/CatalogDetailPage";
@@ -22,10 +26,14 @@ function AppRoutes() {
         <Route path="/catalogo/:legacyId" element={<CatalogLegacyDetailPage />} />
         <Route path="/terminos" element={<TermsPage />} />
         <Route path="/privacidad" element={<PrivacyPage />} />
+        <Route path="/cookies" element={<CookiesPage />} />
+        <Route path="/tasaciones" element={<TasacionesPage />} />
+        <Route path="/remates" element={<RematesPage />} />
         <Route path="/admin/login" element={<AdminLoginPage />} />
         <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
       </Routes>
       {!isAdminRoute && <WhatsAppFloatButton />}
+      {!isAdminRoute && <CookieBanner />}
     </>
   );
 }

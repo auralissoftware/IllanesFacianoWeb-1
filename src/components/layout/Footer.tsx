@@ -74,6 +74,8 @@ export function Footer() {
             <span aria-hidden>·</span>
             <Link to="/privacidad">Política de Privacidad</Link>
             <span aria-hidden>·</span>
+            <Link to="/cookies">Política de Cookies</Link>
+            <span aria-hidden>·</span>
             <Link to="/admin/login">Administración</Link>
           </div>
 

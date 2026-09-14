@@ -47,9 +47,7 @@ export function CatalogDetailPage() {
 
         if (!cancelled) {
           setItem(listing);
-          if (listing) {
-            void trackCatalogView(listing.id);
-          } else {
+          if (!listing) {
             setError("Esta publicación no existe o ya no está disponible.");
           }
         }
@@ -75,6 +73,25 @@ export function CatalogDetailPage() {
       cancelled = true;
     };
   }, [categoriaParam, slug]);
+
+  useEffect(() => {
+    const itemId = item?.id;
+
+    if (!itemId) {
+      return;
+    }
+
+    const track = () => {
+      void trackCatalogView(itemId);
+    };
+
+    track();
+    window.addEventListener("cookie-consent-updated", track);
+
+    return () => {
+      window.removeEventListener("cookie-consent-updated", track);
+    };
+  }, [item?.id]);
 
   if (isLoading) {
     return (
